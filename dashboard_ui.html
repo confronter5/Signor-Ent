@@ -1,0 +1,1844 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{{DASHBOARD_TITLE}}</title>
+    
+    <link rel="icon" href="{{DASHBOARD_LOGO}}">
+    <link rel="apple-touch-icon" href="{{DASHBOARD_LOGO}}">
+    <meta name="theme-color" content="#ff3b30">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="{{BOT_DISPLAY_NAME}}">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="/manifest.json">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #000000;
+            --bg-elevated: #0c0c0e;
+            --bg-card: #101013;
+            --bg-hover: #1a1a20;
+            --border: #232329;
+            --border-focus: #3a3a44;
+            --text-primary: #f4f4f8;
+            --text-secondary: #a0a0b8;
+            --text-muted: #6a6a8a;
+            --accent: #ff3b30;
+            --accent-dim: rgba(255,59,48,0.15);
+            --accent-glow: rgba(255,59,48,0.30);
+            --danger: #ff7675;
+            --danger-dim: rgba(255,118,117,0.15);
+            --warning: #fdcb6e;
+            --warning-dim: rgba(253,203,110,0.15);
+            --gold: #fdcb6e;
+            --gold-dim: rgba(253,203,110,0.15);
+            --green: #2ecc71;
+            --green-dim: rgba(46,204,113,0.15);
+            --teal: #55efc4;
+            --teal-dim: rgba(85,239,196,0.15);
+            --blue: #74b9ff;
+            --blue-dim: rgba(116,185,255,0.15);
+            --radius: 20px;
+            --radius-sm: 14px;
+            --radius-xs: 10px;
+            --shadow: 0 2px 12px rgba(0,0,0,0.6);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.8);
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        [data-theme="light"] {
+            --bg: #ffffff;
+            --bg-elevated: #f8f8fa;
+            --bg-card: #ffffff;
+            --bg-hover: #f0f0f5;
+            --border: #e2e2ea;
+            --border-focus: #d0d0dc;
+            --text-primary: #1a1a2e;
+            --text-secondary: #555570;
+            --text-muted: #8888a0;
+            --accent: #e74c3c;
+            --accent-dim: rgba(231,76,60,0.10);
+            --accent-glow: rgba(231,76,60,0.20);
+            --danger: #e74c3c;
+            --danger-dim: rgba(231,76,60,0.10);
+            --warning: #f39c12;
+            --warning-dim: rgba(243,156,18,0.10);
+            --gold: #f39c12;
+            --gold-dim: rgba(243,156,18,0.10);
+            --green: #27ae60;
+            --green-dim: rgba(39,174,96,0.10);
+            --teal: #1abc9c;
+            --teal-dim: rgba(26,188,156,0.10);
+            --blue: #3498db;
+            --blue-dim: rgba(52,152,219,0.10);
+            --shadow: 0 2px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--text-primary); font-family: var(--font); font-size: 14px; line-height: 1.5; min-height: 100vh; overflow-x: hidden; touch-action: manipulation; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-focus); border-radius: 10px; }
+
+        /* Login with Floating Posters */
+        .password-gate { position: fixed; inset: 0; background: var(--bg); z-index: 99999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s ease; overflow: hidden; padding: 1rem; }
+        .password-gate.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .gate-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem 1.8rem; max-width: 440px; width: 100%; text-align: center; box-shadow: var(--shadow-lg), 0 0 80px var(--accent-glow); position: relative; z-index: 2; overflow: hidden; backdrop-filter: blur(4px); }
+        [data-theme="light"] .gate-card { background: rgba(255,255,255,0.94); }
+        [data-theme="dark"] .gate-card { background: rgba(16,16,19,0.88); }
+        .gate-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent); }
+        .gate-poster-strip { position: absolute; inset: -10%; pointer-events: none; overflow: hidden; z-index: 0; }
+        .gate-poster-strip .mini-poster { position: absolute; width: 110px; height: 160px; border-radius: 12px; object-fit: cover; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.4); opacity: 0.85; filter: none; z-index: 0; animation: floatPosters 10s infinite ease-in-out; }
+        .gate-poster-strip .mini-poster:nth-child(1) { top: -20px; left: -20px; animation-delay: 0s; }
+        .gate-poster-strip .mini-poster:nth-child(2) { top: 20%; right: -30px; animation-delay: -2s; }
+        .gate-poster-strip .mini-poster:nth-child(3) { bottom: 30%; left: -40px; animation-delay: -4s; }
+        .gate-poster-strip .mini-poster:nth-child(4) { bottom: -20px; right: 10%; animation-delay: -6s; }
+        .gate-poster-strip .mini-poster:nth-child(5) { top: -30px; right: 20%; animation-delay: -8s; }
+        .gate-poster-strip .mini-poster:nth-child(6) { bottom: -40px; left: 20%; animation-delay: -3s; }
+        @keyframes floatPosters { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-20px) rotate(5deg); } }
+        .gate-logo { width: 64px; height: 64px; border-radius: 16px; object-fit: cover; margin: 0 auto 0.75rem; box-shadow: 0 4px 20px var(--accent-glow); position: relative; z-index: 3; }
+        .gate-title { font-weight: 800; font-size: 22px; margin-bottom: 0.15rem; position: relative; z-index: 3; }
+        .gate-title span { color: var(--accent); }
+        .gate-subtitle { color: var(--text-muted); font-size: 12px; margin-bottom: 1.25rem; position: relative; z-index: 3; }
+        .gate-input { width: 100%; padding: 13px 16px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-xs); color: var(--text-primary); font-size: 15px; font-weight: 600; letter-spacing: 3px; text-align: center; margin-bottom: 0.8rem; outline: none; position: relative; z-index: 3; }
+        .gate-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-dim); }
+        .gate-btn { width: 100%; padding: 13px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius-xs); font-size: 14px; font-weight: 700; cursor: pointer; transition: var(--transition); position: relative; z-index: 3; }
+        .gate-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px var(--accent-glow); }
+        .gate-error { color: var(--danger); font-size: 12px; font-weight: 600; margin-top: 0.8rem; min-height: 18px; opacity: 0; transition: opacity 0.3s; position: relative; z-index: 3; }
+        .gate-error.show { opacity: 1; }
+        .gate-shake { animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
+        @keyframes shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(5px); } }
+        .gate-inject { display: none; margin-top: 18px; width: 100%; position: relative; z-index: 3; }
+        .gate-inject.show { display: block; }
+        .gate-inject-bar { height: 8px; border-radius: 99px; background: rgba(255,255,255,0.08); overflow: hidden; margin-top: 10px; }
+        .gate-inject-fill { height: 100%; width: 0%; border-radius: 99px; background: var(--accent); transition: width .12s linear; }
+        .gate-inject-text { font-size: 13px; letter-spacing: 1px; color: var(--accent); text-align: center; min-height: 18px; }
+
+        /* Sidebar */
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 299; }
+        .sidebar-overlay.show { display: block; }
+        .sidebar { width: 260px; background: var(--bg-elevated); border-right: 1px solid var(--border); position: fixed; left: 0; top: 0; bottom: 0; z-index: 300; display: flex; flex-direction: column; padding: 1.25rem 1rem; transform: translateX(-100%); transition: transform 0.3s ease; overflow-y: auto; }
+        .sidebar.open { transform: translateX(0); }
+        .sidebar-brand { display: flex; align-items: center; gap: 10px; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem; }
+        .sidebar-brand .brand-icon { width: 40px; height: 40px; background: var(--accent); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #fff; }
+        .sidebar-brand .brand-text { font-weight: 800; font-size: 17px; }
+        .sidebar-brand .brand-text span { color: var(--accent); }
+        .sidebar-brand .brand-sub { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+        .sidebar-nav { display: flex; flex-direction: column; gap: 2px; flex: 1; overflow-y: auto; }
+        .sidebar-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 12px; color: var(--text-secondary); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s; border: none; background: none; text-align: left; font-family: var(--font); width: 100%; }
+        .sidebar-item:hover { background: var(--accent-dim); color: var(--text-primary); }
+        .sidebar-item.active { background: var(--accent); color: #fff; box-shadow: 0 4px 16px var(--accent-glow); }
+        .sidebar-item i { font-size: 15px; width: 22px; text-align: center; flex-shrink: 0; }
+        .sidebar-footer { padding-top: 1rem; border-top: 1px solid var(--border); font-size: 11px; color: var(--text-muted); text-align: center; flex-shrink: 0; cursor: pointer; padding: 12px 8px; margin-top: 4px; }
+        .sidebar-footer .brand-line { font-weight: 700; color: var(--text-secondary); font-size: 12px; }
+        .sidebar-footer .brand-line span { color: var(--accent); }
+
+        /* Topbar */
+        .topbar { position: sticky; top: 0; z-index: 200; background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 0 1rem; display: flex; align-items: center; justify-content: space-between; min-height: 56px; flex-wrap: wrap; padding-top: 6px; padding-bottom: 6px; row-gap: 6px; }
+        .topbar-left { display: flex; align-items: center; gap: 10px; }
+        .topbar-title { font-weight: 700; font-size: 16px; white-space: nowrap; }
+        .topbar-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; flex-shrink: 0; }
+        .topbar-btn { width: 34px; height: 34px; border-radius: 10px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition); font-size: 13px; }
+        .topbar-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .menu-toggle { display: none; width: 34px; height: 34px; border-radius: 10px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-primary); align-items: center; justify-content: center; cursor: pointer; }
+        .live-time { font-size: 10px; color: var(--text-primary); font-family: monospace; padding: 3px 8px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; display: inline-flex; align-items: center; gap: 5px; font-weight: 600; }
+        .live-time i { color: var(--accent); font-size: 9px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        /* Main */
+        .main-content { flex: 1; margin-left: 260px; min-height: 100vh; }
+        .container { padding: 1rem 1.25rem; max-width: 1200px; margin: 0 auto; }
+        .page { display: none; animation: pageIn 0.3s ease; }
+        .page.active { display: block; }
+        @keyframes pageIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Stats */
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1rem; }
+        .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; transition: var(--transition); position: relative; overflow: hidden; cursor: pointer; border-radius: 18px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+        .stat-card:hover { transform: translateY(-6px); border-color: var(--accent); }
+        .stat-icon { width: 30px; height: 30px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 13px; margin-bottom: 0.5rem; background: var(--accent-dim); color: var(--accent); }
+        .stat-number { font-weight: 800; font-size: 24px; letter-spacing: -0.03em; line-height: 1; }
+        .stat-label { color: var(--text-muted); font-size: 10px; font-weight: 600; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-arrow { position: absolute; top: 10px; right: 10px; color: var(--text-muted); font-size: 11px; opacity: 0; transition: var(--transition); }
+        .stat-card:hover .stat-arrow { opacity: 1; transform: translateX(2px); }
+
+        /* Quick status */
+        .quick-status-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1rem; }
+        .quick-status-header { display: flex; align-items: center; gap: 8px; margin-bottom: 0.8rem; }
+        .quick-status-header i { color: var(--accent); font-size: 15px; }
+        .quick-status-header h3 { font-weight: 700; font-size: 14px; }
+        .quick-status-header p { color: var(--text-muted); font-size: 11px; margin-left: auto; }
+        .status-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+        .status-row:last-child { border-bottom: none; }
+        .status-row-left { display: flex; align-items: center; gap: 8px; }
+        .status-row-left i { font-size: 15px; width: 22px; text-align: center; }
+        .status-row-left .label { font-weight: 600; font-size: 12px; }
+        .status-badge { padding: 3px 10px; border-radius: 100px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .status-badge.on { background: rgba(46,204,113,0.15); color: var(--green); }
+        .status-badge.off { background: var(--danger-dim); color: var(--danger); }
+        .status-badge.num { background: var(--accent-dim); color: var(--accent); }
+        .badge { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; }
+        .badge.paid { background: rgba(46,204,113,0.18); color: #2ecc71; }
+        .badge.pending { background: rgba(253,203,110,0.15); color: #fdcb6e; }
+        .badge.failed { background: rgba(255,118,117,0.15); color: #ff7675; }
+
+
+        /* Cards */
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 0.8rem; }
+        .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.8rem; }
+        .section-title { font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 6px; }
+        .section-title i { color: var(--accent); font-size: 13px; }
+
+        /* Toolbar */
+        .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 0.8rem; padding: 8px 10px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-xs); }
+        .toolbar input, .toolbar select { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; color: var(--text-primary); padding: 7px 10px; font-size: 11px; font-family: var(--font); outline: none; }
+        .toolbar input:focus, .toolbar select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+        .toolbar .btn { padding: 8px 14px; border-radius: 10px; border: none; font-size: 12px; font-weight: 700; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; gap: 5px; font-family: var(--font); }
+        .btn-primary { background: var(--accent); color: #fff; }
+        .btn-secondary { background: var(--bg-hover); color: var(--text-secondary); border: 1px solid var(--border); }
+        .btn-gold { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(253,203,110,0.3); }
+        .btn-danger { background: var(--danger-dim); color: var(--danger); border: 1px solid rgba(255,118,117,0.3); }
+        .btn-blue { background: var(--blue); color: #fff; }
+        .btn { padding: 7px 14px; border-radius: var(--radius-xs); border: none; font-size: 11px; font-weight: 700; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; gap: 4px; font-family: var(--font); }
+
+        /* Movies Grid */
+        .movies-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+        .movie-card { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-xs); overflow: hidden; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; position: relative; }
+        .movie-card:hover { box-shadow: var(--shadow-lg); border-color: var(--accent); }
+        .movie-card.selected { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-dim); }
+        .movie-card .poster-wrap { position: relative; width: 100%; aspect-ratio: 2/3; background: linear-gradient(135deg, #1e1e2d, #2d2d44); }
+        .movie-card .poster { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .movie-card .poster-fallback { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 24px; }
+        .movie-card .card-body { padding: 8px; }
+        .movie-card .card-title { font-weight: 600; font-size: 11px; line-height: 1.35; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; margin-bottom: 4px; min-height: 30px; }
+        .movie-card .card-meta { display: flex; align-items: center; justify-content: space-between; font-size: 10px; }
+        .movie-card .card-price { color: var(--accent); font-weight: 700; }
+        .movie-card .card-tag { font-size: 8px; font-weight: 700; padding: 2px 5px; border-radius: 4px; background: var(--accent-dim); color: var(--accent); }
+        .movie-card .card-actions { display: flex; gap: 3px; padding: 0 8px 8px; }
+        .movie-card .card-actions button { flex: 1; padding: 5px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-hover); color: var(--text-secondary); font-size: 10px; cursor: pointer; transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 3px; }
+        .movie-card .card-actions button:hover { border-color: var(--accent); color: var(--accent); }
+        .movie-card .select-overlay { position: absolute; top: 6px; right: 6px; width: 24px; height: 24px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--accent); opacity: 0; transition: opacity 0.15s; z-index: 2; pointer-events: none; }
+        .movie-card:hover .select-overlay, .movie-card.selected .select-overlay { opacity: 1; }
+        .movie-card.selected .select-overlay { background: var(--accent); color: #fff; border-color: var(--accent); }
+        @media (hover: none) {
+            .movie-card .select-overlay { opacity: 1; }
+        }
+
+        /* Bundles */
+        .bundles-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 12px; }
+        .bundle-card { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-xs); overflow: hidden; transition: var(--transition); position: relative; margin-bottom: 8px; }
+        .bundle-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--gold); }
+        .bundle-card .poster-wrap { position: relative; width: 100%; aspect-ratio: 16/9; background: linear-gradient(135deg, #1e1e2d, #2d2d44); }
+        .bundle-card .poster { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .bundle-card .poster-fallback { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 22px; }
+        .bundle-card .card-body { padding: 8px 10px; }
+        .bundle-card .card-title { font-weight: 700; font-size: 12px; line-height: 1.35; }
+        .bundle-card .card-meta { display: flex; align-items: center; justify-content: space-between; font-size: 10px; color: var(--text-muted); }
+        .bundle-card .card-price { color: var(--gold); font-weight: 700; font-size: 11px; }
+        .bundle-card .card-actions { display: flex; gap: 3px; padding: 0 10px 10px; flex-wrap: wrap; }
+        .bundle-card .card-actions button { flex: 1; padding: 5px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-hover); color: var(--text-secondary); font-size: 10px; cursor: pointer; transition: var(--transition); }
+        .bundle-card .card-actions button:hover { border-color: var(--gold); color: var(--gold); }
+        .bundle-episodes { padding: 6px 10px; background: var(--bg-elevated); border-top: 1px solid var(--border); font-size: 11px; display: none; }
+        .bundle-episodes.show { display: block; }
+        .bundle-episodes .episode-item { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px dashed var(--border); }
+        .bundle-episodes .episode-item:last-child { border-bottom: none; }
+
+        /* Payment Pending Button */
+        .btn-pending { background: var(--warning-dim); color: var(--warning); border: 1px solid var(--warning); }
+
+        /* Modal */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 5000; display: none; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(4px); }
+        .modal-overlay.show { display: flex; }
+        .modal { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 1.25rem; box-shadow: var(--shadow-lg); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
+        .modal-header h3 { font-weight: 700; font-size: 15px; }
+        .modal-close { width: 30px; height: 30px; border-radius: 8px; background: var(--bg-hover); border: 1px solid var(--border); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .modal-close:hover { border-color: var(--danger); color: var(--danger); }
+
+        /* Forms */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+        .input-group { margin-bottom: 0.6rem; }
+        .input-group label { display: block; margin-bottom: 4px; color: var(--text-secondary); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        input, textarea, select { width: 100%; padding: 8px 10px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-xs); color: var(--text-primary); font-size: 12px; font-family: var(--font); outline: none; }
+        input:focus, textarea:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+        textarea { resize: vertical; min-height: 70px; }
+        textarea.mono { font-family: monospace; font-size: 11px; line-height: 1.6; }
+
+        /* List items */
+        .list-item { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-xs); padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; transition: var(--transition); gap: 8px; }
+        .list-item:hover { border-color: var(--border-focus); background: var(--bg-hover); }
+        .list-item .info h4 { font-weight: 600; font-size: 12px; margin-bottom: 2px; }
+        .list-item .info .meta { color: var(--text-muted); font-size: 10px; font-family: monospace; }
+        .badge { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 100px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+        .badge-paid { background: var(--accent-dim); color: var(--accent); }
+        .badge-pending { background: var(--warning-dim); color: var(--warning); }
+        .badge-sub { background: var(--gold-dim); color: var(--gold); }
+        .badge-mpesa { background: var(--teal-dim); color: var(--teal); }
+        .badge-card { background: var(--blue-dim); color: var(--blue); }
+        .badge-danger { background: var(--danger-dim); color: var(--danger); }
+
+        /* Drop zone */
+        .drop-zone { border: 2px dashed var(--border); border-radius: var(--radius-xs); padding: 1.2rem; text-align: center; cursor: pointer; transition: var(--transition); background: var(--bg-elevated); }
+        .drop-zone:hover, .drop-zone.dragover { border-color: var(--accent); background: var(--accent-dim); }
+        .drop-zone i { font-size: 22px; color: var(--text-muted); margin-bottom: 0.3rem; }
+        .drop-zone p { color: var(--text-secondary); font-size: 11px; font-weight: 500; }
+        .drop-zone .sub { color: var(--text-muted); font-size: 9px; margin-top: 3px; }
+        .drop-zone input { display: none; }
+
+        /* Image gallery */
+        .image-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 4px; margin-bottom: 0.5rem; }
+        .image-thumb { position: relative; aspect-ratio: 3/4; border-radius: var(--radius-xs); overflow: hidden; border: 1px solid var(--border); background: var(--bg-elevated); }
+        .image-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .image-thumb .remove-img { position: absolute; top: 2px; right: 2px; width: 18px; height: 18px; border-radius: 50%; background: var(--danger); color: #fff; border: none; cursor: pointer; font-size: 8px; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
+        .image-thumb:hover .remove-img { opacity: 1; }
+
+        /* Result Box */
+        .result-box { margin-top: 0.6rem; padding: 0.6rem; background: var(--accent-dim); border-radius: var(--radius); border: 1px solid var(--accent); display: none; }
+        .result-box.show { display: block; animation: fadeIn 0.4s ease; }
+        .link-display { background: var(--bg-card); padding: 8px 10px; border-radius: var(--radius-xs); margin: 0.3rem 0; word-break: break-all; color: var(--accent); font-family: monospace; font-size: 10px; border: 1px solid var(--border); }
+
+        /* Movie Picker */
+        .movie-picker { max-height: 240px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--radius-xs); background: var(--bg-elevated); margin-bottom: 0.5rem; }
+        .movie-picker-item { display: flex; align-items: center; gap: 6px; padding: 5px 8px; border-bottom: 1px solid var(--border); cursor: pointer; transition: var(--transition); }
+        .movie-picker-item:hover { background: var(--bg-hover); }
+        .movie-picker-item.selected { background: var(--accent-dim); border-left: 3px solid var(--accent); }
+        .movie-picker-item input[type="checkbox"] { width: 13px; height: 13px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+        .movie-picker-item .picker-title { flex: 1; font-size: 10px; font-weight: 500; }
+        .movie-picker-item .picker-price { color: var(--accent); font-size: 9px; font-weight: 700; flex-shrink: 0; }
+
+        /* Selected summary */
+        .selected-summary { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-xs); padding: 0.5rem 0.6rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.3rem; }
+        .selected-summary .label { color: var(--text-muted); font-size: 10px; }
+        .selected-summary .value { font-weight: 800; font-size: 14px; color: var(--gold); }
+
+        /* Bundle Builder */
+        .bundle-builder { border: 2px solid var(--gold); border-radius: var(--radius-sm); padding: 0.8rem; background: linear-gradient(135deg, var(--bg-card) 0%, var(--gold-dim) 100%); }
+        .bundle-section-title { font-weight: 700; font-size: 15px; margin-bottom: 0.3rem; color: var(--gold); display: flex; align-items: center; gap: 5px; }
+        .bundle-section-subtitle { color: var(--text-muted); font-size: 10px; margin-bottom: 0.6rem; }
+
+        /* Post Creator */
+        .post-preview-area { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-xs); padding: 0.5rem; margin: 0.5rem 0; font-size: 11px; color: var(--text-secondary); min-height: 40px; white-space: pre-wrap; }
+        .post-preview-area .preview-label { color: var(--text-muted); font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; display: flex; align-items: center; gap: 3px; }
+        .btn-preview-grid { display: grid; gap: 3px; margin-top: 4px; }
+        .btn-preview-grid .preview-btn { background: var(--bg-elevated); border: 1px solid var(--border-focus); border-radius: 6px; padding: 4px 3px; font-size: 9px; font-weight: 600; color: var(--accent); text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .btn-preview-grid .preview-btn .url-hint { display: block; font-size: 6px; color: var(--text-muted); font-weight: 400; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; }
+        .post-result-box { margin-top: 0.6rem; padding: 0.6rem; border-radius: var(--radius); display: none; }
+        .post-result-box.show { display: block; }
+        .post-result-box.success { background: var(--accent-dim); border: 1px solid var(--accent); }
+        .post-result-box.error { background: var(--danger-dim); border: 1px solid var(--danger); }
+
+        /* DB Status */
+        .db-status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 6px; margin: 0.5rem 0; }
+        .db-status-card { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-xs); padding: 8px; text-align: center; }
+        .db-status-card .db-count { font-weight: 800; font-size: 18px; color: var(--teal); }
+        .db-status-card .db-label { color: var(--text-muted); font-size: 8px; font-weight: 600; margin-top: 2px; text-transform: uppercase; }
+
+        /* Sending Overlay */
+        .sending-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 9999; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 0.6rem; backdrop-filter: blur(4px); }
+        .sending-overlay.show { display: flex; }
+        .sending-overlay .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .sending-overlay p { color: var(--text-primary); font-weight: 700; font-size: 14px; }
+        .sending-overlay .sub { color: var(--text-muted); font-size: 11px; }
+
+        /* Toast */
+        .toast { position: fixed; bottom: 1.25rem; right: 1.25rem; background: var(--accent); color: #fff; padding: 8px 16px; border-radius: var(--radius-xs); font-size: 12px; font-weight: 700; display: none; animation: slideIn 0.35s cubic-bezier(0.175,0.885,0.32,1.275); z-index: 10000; box-shadow: var(--shadow-lg); align-items: center; gap: 5px; max-width: 90%; }
+        .toast.error { background: var(--danger); }
+        .toast.show { display: flex; }
+        @keyframes slideIn { from { transform: translateX(100%) scale(0.9); opacity: 0; } to { transform: translateX(0) scale(1); opacity: 1; } }
+
+        .empty-state { text-align: center; padding: 1.5rem; color: var(--text-muted); }
+        .empty-state i { font-size: 24px; margin-bottom: 0.4rem; opacity: 0.5; }
+        .empty-state p { font-size: 12px; }
+        .divider { border: none; border-top: 1px solid var(--border); margin: 0.6rem 0; }
+        .helper { color: var(--text-muted); font-size: 10px; margin-bottom: 0.5rem; }
+        .helper code { background: var(--bg-hover); padding: 1px 4px; border-radius: 4px; font-family: monospace; font-size: 9px; }
+        .btn-group { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 0.5rem; }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .menu-toggle { display: flex; }
+            .sidebar { transform: translateX(-100%); box-shadow: 4px 0 24px rgba(0,0,0,0.15); }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .movies-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+            .bundles-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+        }
+        @media (max-width: 600px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+            .stat-number { font-size: 18px; }
+            .container { padding: 0.6rem; }
+            .movies-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+            .toolbar { flex-direction: column; align-items: stretch; }
+            .toolbar .search-box { width: 100%; }
+            .topbar { padding: 5px 0.6rem; min-height: 48px; }
+            .topbar-title { font-size: 14px; }
+            .live-time { font-size: 10px; padding: 3px 8px; }
+            .topbar-btn { width: 30px; height: 30px; font-size: 12px; }
+            .menu-toggle { width: 30px; height: 30px; }
+            .gate-card { padding: 1.2rem 1rem; }
+            .gate-title { font-size: 18px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .modal { padding: 1rem; }
+        }
+    
+        /* light-inbox-fix */
+        [data-theme="light"] .list-item,
+        [data-theme="light"] .list-item strong,
+        [data-theme="light"] .list-item h4,
+        [data-theme="light"] .list-item p,
+        [data-theme="light"] .list-item div {
+            color: #111 !important;
+        }
+        [data-theme="light"] .list-item [style*="color:var(--text"] {
+            color: #111 !important;
+        }
+        [data-theme="light"] {
+            --text: #111;
+            --text-muted: #555;
+            --bg-secondary: #f3f3f3;
+            --card-bg: #fff;
+            --border: #ddd;
+        }
+
+</style>
+</head>
+<body>
+
+    <div class="password-gate" id="passwordGate">
+        <div class="gate-card" id="gateCard">
+            <div class="gate-poster-strip" id="gatePosterStrip">
+                <!-- Posters loaded via JS and randomly positioned -->
+            </div>
+            <img src="{{DASHBOARD_LOGO}}" class="gate-logo" alt="{{BOT_DISPLAY_NAME}}" onerror="this.style.display='none'">
+            <div class="gate-title">{{BOT_DISPLAY_NAME}} <span>Store</span></div>
+            <p class="gate-subtitle">Movie Bot Admin Dashboard</p>
+            <input type="password" class="gate-input" id="gatePassword" placeholder="Enter Password" onkeydown="if(event.key==='Enter')checkPassword()">
+            <button class="gate-btn" onclick="checkPassword()"><i class="fas fa-unlock"></i> Unlock Dashboard</button>
+            <div class="gate-inject" id="gateInject"><div class="gate-inject-text" id="gateInjectText">injecting system 0%...</div><div class="gate-inject-bar"><div class="gate-inject-fill" id="gateInjectFill"></div></div></div>
+            <div class="gate-error" id="gateError"><i class="fas fa-exclamation-triangle"></i> <span>Wrong password. Try again.</span></div>
+        </div>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon"><i class="fas fa-film"></i></div>
+            <div>
+                <div class="brand-text">{{BOT_DISPLAY_NAME}} <span>Store</span></div>
+                <div class="brand-sub">Movie Bot Admin</div>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <button class="sidebar-item active" onclick="showPage('overview', this)"><i class="fas fa-chart-pie"></i> Overview</button>
+            <button class="sidebar-item" onclick="showPage('movies', this)"><i class="fas fa-film"></i> Movies</button>
+            <button class="sidebar-item" onclick="showPage('addmovie', this)"><i class="fas fa-plus-circle"></i> Add Movie</button>
+            <button class="sidebar-item" onclick="showPage('bundles', this)"><i class="fas fa-layer-group"></i> Movie Collections</button>
+            <button class="sidebar-item" onclick="showPage('postcreator', this)"><i class="fas fa-pen-fancy"></i> Post Creator</button>
+            <button class="sidebar-item" onclick="showPage('users', this)"><i class="fas fa-users"></i> Users</button>
+            <button class="sidebar-item" onclick="showPage('payments', this)"><i class="fas fa-credit-card"></i> Payments</button>
+            <button class="sidebar-item" onclick="showPage('subscriptions', this)"><i class="fas fa-crown"></i> Subscriptions</button>
+            <button class="sidebar-item" onclick="showPage('inbox', this)"><i class="fas fa-inbox"></i> Inbox</button>
+            <button class="sidebar-item" onclick="showPage('broadcast', this)"><i class="fas fa-bullhorn"></i> Broadcast</button>
+            <button class="sidebar-item" onclick="showPage('settings', this)"><i class="fas fa-cog"></i> Settings</button>
+            <button class="sidebar-item" onclick="showPage('database', this)"><i class="fas fa-database"></i> Database</button>
+            <button class="sidebar-item" onclick="triggerGetApp()" style="margin-top:8px; background:var(--accent-dim); color:var(--accent);">
+                <i class="fas fa-download"></i> Get App
+            </button>
+        </nav>
+        <div class="sidebar-footer" onclick="window.open('https://wa.me/254796283064', '_blank')">
+            <div class="brand-line"><span>{{BOT_DISPLAY_NAME}} ● All rights reserved 2023-<script>document.write(new Date().getFullYear())</script></span></div>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <div class="topbar">
+            <div class="topbar-left">
+                <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+                <div class="topbar-title" id="pageTitle">Overview</div>
+            </div>
+            <div class="topbar-actions">
+                <span class="live-time" id="liveTime"><i class="fas fa-clock"></i><span class="time-display" id="timeDisplay">--:--:--</span></span>
+                <button class="topbar-btn" onclick="toggleTheme()" title="Toggle Theme" id="themeBtn"><i class="fas fa-sun"></i></button>
+                <button class="topbar-btn" onclick="refreshAll()" title="Refresh"><i class="fas fa-sync-alt"></i></button>
+                <button class="topbar-btn" onclick="logout()" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="page active" id="page-overview">
+                <div class="stats-grid">
+                    <div class="stat-card" onclick="navigateTo('movies')"><div class="stat-icon"><i class="fas fa-film"></i></div><div class="stat-number" id="statMovies">0</div><div class="stat-label">Movies</div><i class="fas fa-arrow-right stat-arrow"></i></div>
+                    <div class="stat-card gold" onclick="navigateTo('bundles')"><div class="stat-icon"><i class="fas fa-layer-group"></i></div><div class="stat-number" id="statBundles">0</div><div class="stat-label">Movie Collections</div><i class="fas fa-arrow-right stat-arrow"></i></div>
+                    <div class="stat-card purple" onclick="navigateTo('users')"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-number" id="statUsers">0</div><div class="stat-label">Users</div><i class="fas fa-arrow-right stat-arrow"></i></div>
+                    <div class="stat-card gold" onclick="navigateTo('payments')"><div class="stat-icon"><i class="fas fa-coins"></i></div><div class="stat-number" id="statRevenue">0</div><div class="stat-label">Revenue (KES)</div><i class="fas fa-arrow-right stat-arrow"></i></div>
+                    <div class="stat-card blue" onclick="navigateTo('payments')"><div class="stat-icon"><i class="fas fa-shopping-cart"></i></div><div class="stat-number" id="statSales">0</div><div class="stat-label">Sales</div><i class="fas fa-arrow-right stat-arrow"></i></div>
+                    <div class="stat-card green" onclick="navigateTo('subscriptions')"><div class="stat-icon"><i class="fas fa-crown"></i></div><div class="stat-number" id="statActiveSubs">0</div><div class="stat-label">Active Subs</div><i class="fas fa-arrow-right stat-arrow"></i></div>
+                </div>
+                <div class="quick-status-card">
+                    <div class="quick-status-header"><i class="fas fa-info-circle"></i><h3>Quick Status</h3><p>Feature toggles</p></div>
+                    <div class="status-row"><div class="status-row-left"><i class="fas fa-credit-card" style="color:var(--warning)"></i><span class="label">Card payments</span></div><span class="status-badge on" id="qsCard">ON</span></div>
+                    <div class="status-row"><div class="status-row-left"><i class="fas fa-ticket-alt" style="color:var(--gold)"></i><span class="label">Subscriptions</span></div><span class="status-badge on" id="qsSub">ON</span></div>
+                    <div class="status-row"><div class="status-row-left"><i class="fas fa-shopping-cart" style="color:var(--accent)"></i><span class="label">Cart</span></div><span class="status-badge on" id="qsCart">ON</span></div>
+                    <div class="status-row"><div class="status-row-left"><i class="fas fa-mobile-alt" style="color:var(--teal)"></i><span class="label">M-Pesa sales</span></div><span class="status-badge num" id="qsMpesa">0</span></div>
+                    <div class="status-row"><div class="status-row-left"><i class="fas fa-robot" style="color:var(--blue)"></i><span class="label">Get Bot</span></div><span class="status-badge on" id="qsGetbot">ON</span></div>
+                </div>
+            </div>
+
+            <div class="page" id="page-movies">
+                <div class="toolbar">
+                    <input type="text" class="search-box" id="movieSearch" placeholder="Search movies..." oninput="searchMovies()">
+                    <select id="movieCategoryFilter" onchange="renderMovies()"><option value="all">All</option><option value="movie">Movies</option><option value="series">Series</option><option value="anime">Anime</option><option value="documentary">Documentary</option></select>
+                    <button class="btn btn-secondary" onclick="clearSelection()"><i class="fas fa-times"></i> Clear</button>
+                    <button class="btn btn-gold" id="createBundleBtn" style="display:none;" onclick="openCreateBundleModal()"><i class="fas fa-layer-group"></i> Create Bundle</button>
+                    <button class="btn btn-primary" onclick="sendSelectionToChannel()"><i class="fas fa-paper-plane"></i> Send Selection</button>
+                </div>
+                <div class="card" style="padding:0.8rem;margin-bottom:0.8rem;display:none;" id="sendAlbumCard">
+                    <div class="section-header"><div class="section-title"><i class="fas fa-photo-video"></i> Send Selection To Channel</div></div>
+                    <p style="color:var(--text-muted);font-size:11px;margin-bottom:0.6rem;">Selected movies will be sent as an album with purchase buttons + a GET ALL ONCE button. Rows auto‑adjust to 4 when 10+ movies.</p>
+                    <div class="form-grid" style="margin-bottom:0.6rem;">
+                        <div class="input-group" style="margin:0;"><label>Target channel</label><input type="text" id="albumChannel" placeholder="@use or -100..."></div>
+                        <div class="input-group" style="margin:0;"><label>Album title (optional)</label><input type="text" id="albumTitle" placeholder="Collection title"></div>
+                        <div class="input-group" style="margin:0;"><label>Buttons Per Row</label><select id="albumPerRow"><option value="3">3</option><option value="4">4</option><option value="5">5</option></select></div>
+                    </div>
+                    <div class="input-group" style="margin-bottom:0.6rem;" id="buttonTextEditor">
+                        <label>Edit Button Texts only (1 per line — original movie titles stay unchanged)</label>
+                        <textarea id="buttonTextsArea" class="mono" style="min-height: 120px;" placeholder="1. Short button text&#10;2. Another button text"></textarea>
+                    </div>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;"><button class="btn btn-primary" onclick="confirmSendAlbum()"><i class="fas fa-paper-plane"></i> Send Selected as Album</button><button class="btn btn-secondary" onclick="document.getElementById('sendAlbumCard').style.display='none'">Cancel</button></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;flex-wrap:wrap;">
+                    <span style="color:var(--text-muted);font-size:11px;font-weight:600;" id="movieCountLabel">Loading...</span>
+                    <span style="color:var(--accent);font-size:11px;font-weight:700;" id="selectionLabel"></span>
+                    <div style="margin-left:auto;display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
+                        <label style="font-size:10px;color:var(--text-muted);">Rows:</label>
+                        <select id="movieGridCols" onchange="setMovieGridCols(this.value)" style="padding:4px 6px;font-size:10px;border-radius:6px;background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);">
+                            <option value="2">2</option>
+                            <option value="3" selected>3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="10">10</option>
+                        </select>
+                        <button class="btn btn-secondary" style="padding:4px 10px;font-size:10px;" onclick="selectAllVisible()"><i class="fas fa-check-double"></i> Select All</button>
+                        <button class="btn btn-secondary" style="padding:4px 10px;font-size:10px;" onclick="clearSelection()"><i class="fas fa-eraser"></i> Clear</button>
+                        <button class="btn btn-gold" style="padding:4px 10px;font-size:10px;" onclick="useSelectedPoster()" title="Use selected poster for other movies"><i class="fas fa-image"></i> Use This Poster</button>
+                    </div>
+                </div>
+                <div class="movies-grid" id="moviesGrid"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading movies...</p></div></div>
+            </div>
+            <div class="page" id="page-addmovie">
+                <div class="card">
+                    <div class="section-header"><div class="section-title"><i class="fas fa-plus-circle"></i> Add Movie</div></div>
+                    <div style="display:flex;gap:3px;margin-bottom:0.6rem;flex-wrap:wrap;"><button class="btn btn-sm btn-primary" onclick="switchAddTab('single',this)" id="tabSingleBtn"><i class="fas fa-film"></i> Single</button><button class="btn btn-sm btn-secondary" onclick="switchAddTab('bulk',this)" id="tabBulkBtn"><i class="fas fa-file-csv"></i> Bulk CSV</button><button class="btn btn-sm btn-secondary" onclick="switchAddTab('simple',this)" id="tabSimpleBtn"><i class="fas fa-bolt"></i> Simple</button><button class="btn btn-sm btn-secondary" onclick="switchAddTab('json',this)" id="tabJsonBtn"><i class="fas fa-code"></i> JSON</button></div>
+                    <div id="addTab-single">
+                        <div class="form-grid">
+                            <div class="input-group"><label>Movie Title *</label><input type="text" id="movieTitle" placeholder="e.g., Inception (2010)"></div>
+                            <div class="input-group"><label>Telegram Private Link</label><input type="text" id="privateLink" placeholder="https://t.me/c/1234567890/123"></div>
+                            <div class="input-group"><label>Channel ID *</label><input type="text" id="channelId" placeholder="-1001234567890"></div>
+                            <div class="input-group"><label>Message ID *</label><input type="number" id="messageId" placeholder="123"></div>
+                            <div class="input-group"><label>Price (KES) <span style="color:var(--text-muted);font-size:8px;">— 0 = FREE</span></label><input type="number" id="moviePrice" value="10" min="0"></div>
+                            <div class="input-group"><label>Category</label><select id="movieCategory"><option value="movie">Movie</option><option value="series">Series</option><option value="anime">Anime</option><option value="documentary">Documentary</option></select></div>
+                        </div>
+                        <div class="form-grid" style="margin-top:0.3rem;"><div class="input-group"><label>Description</label><textarea id="movieDescription" placeholder="Short description..." style="min-height:36px;"></textarea></div><div class="input-group"><label>Movie Poster</label><div class="drop-zone" onclick="document.getElementById('moviePosterInput').click()" style="padding:0.5rem;"><i class="fas fa-image" style="font-size:16px;"></i><p>Click to upload poster</p><p class="sub">Max 5MB. Uploads to Catbox.</p><input type="file" id="moviePosterInput" accept="image/*" onchange="handleMoviePosterUpload(event)"></div></div></div>
+                        <div class="image-gallery" id="posterPreviewGallery" style="display:none;margin-bottom:0.3rem;"></div>
+                        <div class="btn-group"><button class="btn btn-primary" onclick="generateMovieLink()"><i class="fas fa-magic"></i> Generate &amp; Save</button><button class="btn btn-blue" onclick="sendSavedMovieToChannel()" id="sendMovieToChannelBtn" style="display:none;"><i class="fas fa-paper-plane"></i> Send to Channel</button><button class="btn btn-secondary" onclick="clearMovieForm()"><i class="fas fa-eraser"></i> Clear</button></div>
+                        <div class="result-box" id="movieResultBox"><h3><i class="fas fa-check-circle"></i> Movie Added!</h3><div class="movie-name-display" id="movieNameDisplay" style="display:none;"><i class="fas fa-film"></i> <span id="movieNameText"></span></div><p style="color:var(--text-secondary);font-size:11px;margin-bottom:0.3rem;">Share this link:</p><div class="link-display" id="movieLinkDisplay"></div><p style="color:var(--text-muted);font-size:10px;">Price: <span id="movieResultPrice" style="color:var(--accent);font-weight:700;"></span> KES | Subscribers: <span style="color:var(--gold);font-weight:700;">FREE</span></p><div class="btn-group"><button class="btn btn-sm" onclick="copyMovieResultLink()"><i class="fas fa-copy"></i> Copy</button><button class="btn btn-sm btn-blue" id="sendMovieResultToChannelBtn" onclick="sendSavedMovieToChannel()" style="display:none;"><i class="fas fa-paper-plane"></i> Send to Channel</button></div></div>
+                    </div>
+                    <div id="addTab-bulk" style="display:none;">
+                        <p class="helper">Upload a CSV file. <a href="#" onclick="downloadTemplate();return false;" style="color:var(--accent);text-decoration:none;font-weight:600;"><i class="fas fa-download"></i> Download template</a></p>
+                        <div class="drop-zone" onclick="document.getElementById('csvFileInput').click()"><i class="fas fa-cloud-upload-alt"></i><p>Drop CSV here or click to browse</p><p class="sub">Supports .csv with title, private_link, channel_id, message_id, price, category</p><input type="file" id="csvFileInput" accept=".csv" onchange="handleCSVUpload(event)"></div>
+                        <div class="bulk-results" id="bulkResults"></div>
+                    </div>
+                    <div id="addTab-simple" style="display:none;"><p class="helper">Paste one per line: <code>link | price | title</code></p><textarea class="mono" id="simpleInput" placeholder="https://t.me/c/1234567890/100 | 10 | Inception (2010)"></textarea><div class="btn-group"><button class="btn btn-primary" onclick="uploadSimpleBulk()"><i class="fas fa-upload"></i> Upload All</button><button class="btn btn-secondary" onclick="document.getElementById('simpleInput').value='';document.getElementById('simpleResults').innerHTML='';"><i class="fas fa-trash"></i> Clear</button></div><div class="bulk-results" id="simpleResults"></div></div>
+                    <div id="addTab-json" style="display:none;"><p class="helper">Paste a JSON array of movie objects:</p><textarea class="mono" id="jsonInput" placeholder='[{"title":"Movie Name","private_link":"https://t.me/c/1234567890/100","channel_id":"-1001234567890","message_id":100,"price":10,"category":"movie"}]'></textarea><div class="btn-group"><button class="btn btn-primary" onclick="uploadJSONBulk()"><i class="fas fa-upload"></i> Upload JSON</button><button class="btn btn-secondary" onclick="document.getElementById('jsonInput').value='';document.getElementById('jsonResults').innerHTML='';"><i class="fas fa-trash"></i> Clear</button></div><div class="bulk-results" id="jsonResults"></div></div>
+                </div>
+            </div>
+
+            <div class="page" id="page-bundles">
+                <div class="card bundle-builder">
+                    <div class="bundle-section-title"><i class="fas fa-layer-group"></i> Bundle Builder</div>
+                    <p class="bundle-section-subtitle">Select 2 or more movies from your library, set your own price, generate one link.</p>
+                    <div class="form-grid" style="margin-bottom:0.5rem;"><div class="input-group"><label>Bundle Title *</label><input type="text" id="bundleTitle" placeholder="e.g., Marvel Collection"></div><div class="input-group"><label>Bundle Price (KES) *</label><input type="number" id="bundlePrice" value="50" min="1"></div><div class="input-group"><label>Category</label><select id="bundleCategory"><option value="series">TV Series</option><option value="movie">Movie Collection</option><option value="anime">Anime Series</option><option value="documentary">Docu-Series</option></select></div></div>
+                    <div class="form-grid" style="margin-bottom:0.5rem;"><div class="input-group"><label>Bundle Description</label><textarea id="bundleDescription" style="min-height:36px;"></textarea></div><div class="input-group"><label>Bundle Poster</label><div class="drop-zone" onclick="document.getElementById('bundlePosterInput').click()" style="padding:0.5rem;"><i class="fas fa-image" style="font-size:16px;"></i><p>Click to upload bundle poster</p><p class="sub">Max 5MB. Uploads to Catbox.</p><input type="file" id="bundlePosterInput" accept="image/*" onchange="handleBundlePosterUpload(event)"></div></div></div>
+                    <div class="image-gallery" id="bundlePosterPreviewGallery" style="display:none;margin-bottom:0.3rem;"></div>
+                    <div class="selected-summary" id="bundleSelectedSummary" style="display:none;"><span class="label"><i class="fas fa-check-circle"></i> Movies Selected</span><span class="value" id="bundleSelectedCount">0</span></div>
+                    <div class="input-group" style="margin-bottom:0.3rem;"><input type="text" id="bundleSearch" placeholder="Search movies..." oninput="filterBundlePicker()"></div>
+                    <div class="btn-group" style="margin-bottom:0.3rem;"><button class="btn btn-sm btn-secondary" onclick="selectAllBundle()"><i class="fas fa-check-square"></i> All</button><button class="btn btn-sm btn-secondary" onclick="deselectAllBundle()"><i class="fas fa-square"></i> None</button><button class="btn btn-sm btn-secondary" onclick="selectFilteredBundle()"><i class="fas fa-filter"></i> Filtered</button></div>
+                    <div class="movie-picker" id="bundleMoviePicker"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading movies...</p></div></div>
+                    <div class="btn-group" style="margin-top:0.6rem;"><button class="btn btn-gold" onclick="generateBundle()"><i class="fas fa-magic"></i> Generate Bundle Link</button><button class="btn btn-blue" onclick="sendSavedBundleToChannel()" id="sendBundleToChannelBtn" style="display:none;"><i class="fas fa-paper-plane"></i> Send to Channel</button><button class="btn btn-secondary" onclick="clearBundleForm()"><i class="fas fa-eraser"></i> Reset</button></div>
+                    <div class="result-box" id="bundleResultBox"><h3><i class="fas fa-check-circle"></i> Bundle Created!</h3><div id="bundleResultPoster" style="display:none;margin-bottom:8px;"><img id="bundleResultPosterImg" src="" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;border:1px solid var(--border);"></div><div class="movie-name-display" id="bundleNameDisplay" style="display:none;"><i class="fas fa-layer-group"></i> <span id="bundleNameText"></span></div><p style="color:var(--text-secondary);font-size:11px;margin-bottom:0.3rem;">One link delivers ALL movies after payment:</p><div class="link-display" id="bundleLinkDisplay"></div><p style="color:var(--text-muted);font-size:10px;">Bundle: <span id="bundleResultPrice" style="color:var(--gold);font-weight:700;"></span> KES | <span id="bundleResultCount" style="color:var(--accent);font-weight:700;"></span> movies | Subscribers: <span style="color:var(--gold);font-weight:700;">FREE</span></p><div class="btn-group"><button class="btn btn-sm" onclick="copyBundleResultLink()"><i class="fas fa-copy"></i> Copy</button><button class="btn btn-sm btn-blue" id="sendBundleResultToChannelBtn" onclick="sendSavedBundleToChannel()" style="display:none;"><i class="fas fa-paper-plane"></i> Send to Channel</button></div></div>
+                </div>
+                <div class="card">
+                    <div class="section-header"><div class="section-title"><i class="fas fa-layer-group"></i> Movie Collections</div></div>
+                    <div id="bundlesList"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading bundles...</p></div></div>
+                </div>
+            </div>
+
+            <div class="page" id="page-postcreator">
+                <div class="card" style="border:2px solid var(--warning);">
+                    <div class="section-header"><div class="section-title"><i class="fas fa-pen-fancy" style="color:var(--warning);"></i> Channel Post Creator</div></div>
+                    <p class="helper"><b>Poster -> Caption -> Buttons</b>. 1 image = photo + caption + buttons together. 2+ images = each posted individually with delay, ONLY the last gets caption + buttons. Buttons format: <code>Button text - https://t.me/... |</code></p>
+                    <div class="input-group" style="margin-bottom:0.5rem;"><label><i class="fas fa-broadcast-tower"></i> Target Channel</label><input type="text" id="postChannel" placeholder="@yourpublicchannel"></div>
+                    <div class="input-group" style="margin-bottom:0.5rem;"><label><i class="fas fa-images"></i> Images / Posters (Unlimited)</label><div class="drop-zone" onclick="document.getElementById('postImagesInput').click()"><i class="fas fa-cloud-upload-alt"></i><p>Click to upload images</p><p class="sub">1 image = photo + caption + buttons. 2+ = each posted singly, then caption + buttons on last. Max 5MB each.</p><input type="file" id="postImagesInput" accept="image/*" multiple onchange="handlePostImages(event)"></div></div>
+                    <div class="image-gallery" id="postImageGallery" style="display:none;"></div>
+                    <div class="input-group" style="margin-bottom:0.5rem;"><label><i class="fas fa-align-left"></i> Caption / Message</label><textarea id="postText" placeholder="Write your post caption here..." oninput="updatePostPreview()"></textarea></div>
+                    <div class="input-group" style="margin-bottom:0.5rem;"><label><i class="fas fa-mouse-pointer"></i> Inline Buttons</label><textarea class="mono" id="postButtonsText" placeholder="Button text 1 - https://t.me/yourbot?start=token1 |" oninput="updatePostPreview()"></textarea></div>
+                    <div class="form-grid" style="margin-bottom:0.5rem;"><div class="input-group" style="margin-bottom:0;"><label>Buttons Per Row</label><select id="postButtonsPerRow" onchange="updatePostPreview()"><option value="3">3</option><option value="4">4</option><option value="5">5</option></select></div><div class="input-group" style="margin-bottom:0;"><label>Delay Between Posts (seconds)</label><input type="number" id="postDelay" value="2" min="0.5" max="30" step="0.5"></div></div>
+                    <div id="buttonPreviewArea" style="margin-bottom:0.5rem;"></div>
+                    <div class="post-preview-area" id="postPreview"><div class="preview-label"><i class="fas fa-eye"></i> Live Preview</div><span style="color:var(--text-muted)">Your post preview will appear here...</span></div>
+                    <div class="btn-group"><button class="btn btn-gold" onclick="sendChannelPost()"><i class="fas fa-paper-plane"></i> Send to Channel</button><button class="btn btn-secondary" onclick="clearPostForm()"><i class="fas fa-eraser"></i> Clear All</button></div>
+                    <div class="post-result-box" id="postResultBox"><h3><i class="fas fa-check-circle"></i> <span id="postResultTitle">Post Sent!</span></h3><p class="result-detail" id="postResultDetail">Your post has been delivered to the channel.</p></div>
+                </div>
+            </div>
+
+            <div class="page" id="page-users"><div class="toolbar"><input type="text" class="search-box" id="userSearch" placeholder="Search users..." oninput="renderUsers()"><span style="color:var(--text-muted);font-size:11px;" id="userCountLabel">0 users</span></div><div id="usersList"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading users...</p></div></div></div>
+
+            <div class="page" id="page-payments">
+                <div class="toolbar">
+                    <input type="text" id="paymentUserSearch" placeholder="Search by ID, username or name..." oninput="renderPayments()">
+                    <span style="color:var(--text-muted);font-size:11px;" id="paymentCountLabel">0</span>
+                </div>
+                <div id="paymentsList"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading payments...</p></div></div>
+            </div>
+
+            <div class="page" id="page-subscriptions"><div id="subsList"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading subscriptions...</p></div></div></div>
+
+            <div class="page" id="page-inbox"><div class="toolbar"><button class="btn btn-secondary" onclick="showOnlyPending=true;renderMessages()"><i class="fas fa-filter"></i> Pending Only</button><button class="btn btn-secondary" onclick="showOnlyPending=false;renderMessages()"><i class="fas fa-list"></i> All</button></div><div id="messagesList"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading messages...</p></div></div></div>
+
+            <div class="page" id="page-broadcast">
+                <div class="card"><div class="section-header"><div class="section-title"><i class="fas fa-bullhorn"></i> Broadcast to All Users</div></div><p style="color:var(--text-muted);font-size:11px;margin-bottom:0.8rem;">Send messages to all bot users.</p><div class="input-group"><label>Message</label><textarea id="broadcastText" placeholder="Type your announcement here..."></textarea></div><div style="display:flex;gap:6px;flex-wrap:wrap;"><button class="btn btn-primary" onclick="sendBroadcast()"><i class="fas fa-paper-plane"></i> Send Broadcast</button><button class="btn btn-secondary" onclick="document.getElementById('broadcastText').value=''"><i class="fas fa-eraser"></i> Clear</button></div></div>
+            </div>
+
+            <div class="page" id="page-settings">
+                <div class="card"><div class="section-header"><div class="section-title"><i class="fas fa-tag"></i> Prices</div></div><div class="form-grid" style="margin-bottom:0.8rem;">
+                    <div class="input-group"><label>Default Movie Price (KES)</label><input type="number" id="setDefaultPrice" value="10"></div>
+                    <div class="input-group"><label>Weekly Pass (KES)</label><input type="number" id="setWeeklyPrice" value="400"></div>
+                    <div class="input-group"><label>2-Week Pass (KES)</label><input type="number" id="set2WeekPrice" value="700"></div>
+                    <div class="input-group"><label>3-Week Pass (KES)</label><input type="number" id="set3WeekPrice" value="900"></div>
+                    <div class="input-group"><label>Monthly Pass (KES)</label><input type="number" id="setMonthlyPrice" value="1500"></div>
+                    <div class="input-group"><label>Unlock Ban Fee (KES)</label><input type="number" id="banFeeAmount" value="300"></div>
+                </div><button class="btn btn-primary" onclick="savePrices()"><i class="fas fa-save"></i> Save Prices</button></div>
+                <div class="card"><div class="section-header"><div class="section-title"><i class="fas fa-toggle-on"></i> Features</div></div>
+                    <div class="status-row"><div class="status-row-left"><i class="fas fa-shopping-cart"></i><span class="label">Cart system</span></div><label class="toggle-switch"><input type="checkbox" id="featCart" onchange="toggleFeature('cart')"><span class="toggle-slider"></span></label></div>
+                    <div class="status-row"><div class="status-row-left"><i class="fas fa-credit-card"></i><span class="label">Card payments</span></div><label class="toggle-switch"><input type="checkbox" id="featCard" onchange="toggleFeature('card')"><span class="toggle-slider"></span></label></div>
+                    <div class="status-row"><div class="status-row-left"><i class="fas fa-crown"></i><span class="label">Subscriptions</span></div><label class="toggle-switch"><input type="checkbox" id="featSub" onchange="toggleFeature('sub')"><span class="toggle-slider"></span></label></div>
+                    <div class="status-row"><div class="status-row-left"><i class="fas fa-robot"></i><span class="label">Get Bot Like This</span></div><label class="toggle-switch"><input type="checkbox" id="featGetbot" onchange="toggleFeature('getbot')"><span class="toggle-slider"></span></label></div>
+                    <div class="status-row"><div class="status-row-left"><i class="fas fa-star"></i><span class="label">Premium Button (WANT TO BE PREMIUM)</span></div><label class="toggle-switch"><input type="checkbox" id="featPrem" onchange="toggleFeature('prem')"><span class="toggle-slider"></span></label></div>
+                    <div class="status-row"><div class="status-row-left"><i class="fas fa-eye"></i><span class="label">Show movie limit remaining</span></div><label class="toggle-switch"><input type="checkbox" id="featShowLimit" onchange="toggleShowLimit()"><span class="toggle-slider"></span></label></div>
+                    <div class="status-row"><div class="status-row-left"><i class="fas fa-unlock"></i><span class="label">Ban unlock fee ON/OFF</span></div><label class="toggle-switch"><input type="checkbox" id="featBanFee" onchange="saveBanFee()"><span class="toggle-slider"></span></label></div>
+                    <div class="input-group" style="margin:0.5rem 0;"><label>Unlock ban fee (KES)</label><input type="number" id="banFeeAmount2" value="300" style="max-width:140px;" onchange="saveBanFee()"></div>
+
+                </div>
+                <div class="card">
+                    <div class="section-header"><div class="section-title"><i class="fas fa-bell"></i> Auto Re-engage (inactive users)</div></div>
+                    <p style="font-size:12px;color:var(--text-muted);margin:0 0 10px;">If a user is quiet for the timer below, bot sends your message with their name. Turn OFF to disable.</p>
+                    <div class="status-row"><div class="status-row-left"><i class="fas fa-power-off"></i><span class="label">Auto message ON/OFF</span></div><label class="toggle-switch"><input type="checkbox" id="reengageEnabled" onchange="saveReengage()"><span class="toggle-slider"></span></label></div>
+                    <div class="form-grid" style="margin-top:10px;">
+                        <div class="input-group"><label>Timer (inactivity)</label>
+                            <select id="reengageHours" onchange="saveReengage()">
+                            <option value="0.083">5 minutes (test)</option>
+                                <option value="1">1 hour</option>
+                                <option value="2">2 hours</option>
+                                <option value="6">6 hours</option>
+                                <option value="12">12 hours</option>
+                                <option value="24">24 hours</option>
+                                <option value="48" selected>2 days</option>
+                                <option value="72">3 days</option>
+                                <option value="168">7 days</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-group" style="margin-top:8px;"><label>Message text (use {name} or {username})</label>
+                        <textarea id="reengageText" rows="3" placeholder="Hi {name}! Am online and active — press /start to continue..."></textarea>
+                    </div>
+                    <button class="btn btn-primary" style="margin-top:8px;" onclick="saveReengage()"><i class="fas fa-save"></i> Save re-engage</button>
+                </div>
+                <div class="card">
+                    <div class="section-header"><div class="section-title"><i class="fas fa-list-ul"></i> Subscription Limits</div></div>
+                    <div class="form-grid">
+                        <div class="input-group"><label>Weekly Limit</label><input type="number" id="setWeeklyLimit" value="60"></div>
+                        <div class="input-group"><label>2-Week Limit</label><input type="number" id="set2WeekLimit" value="100"></div>
+                        <div class="input-group"><label>3-Week Limit</label><input type="number" id="set3WeekLimit" value="140"></div>
+                        <div class="input-group"><label>Monthly Limit</label><input type="number" id="setMonthlyLimit" value="200"></div>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveLimits()"><i class="fas fa-save"></i> Save Limits</button>
+                </div>
+            </div>
+
+            <div class="page" id="page-database">
+                <div class="card" style="border:2px solid var(--teal);"><div class="section-header"><div class="section-title"><i class="fas fa-database" style="color:var(--teal);"></i> Database Management</div></div><p class="helper">View database status.</p><div class="db-status-grid"><div class="db-status-card"><div class="db-count" id="dbMovies">-</div><div class="db-label">Movies</div></div><div class="db-status-card"><div class="db-count" id="dbPayments">-</div><div class="db-label">Payments</div></div><div class="db-status-card"><div class="db-count" id="dbUsers">-</div><div class="db-label">Users</div></div><div class="db-status-card"><div class="db-count" id="dbBundles">-</div><div class="db-label">Movie Collections</div></div><div class="db-status-card"><div class="db-count" id="dbSubs">-</div><div class="db-label">Subscriptions</div></div><div class="db-status-card"><div class="db-count" id="dbMessages">-</div><div class="db-label">Messages</div></div></div><div class="btn-group"><button class="btn btn-blue" onclick="loadDbStatus()"><i class="fas fa-sync"></i> Refresh Status</button><button class="btn btn-secondary" onclick="clearAllMessages()"><i class="fas fa-trash-alt"></i> Clear Messages</button><button class="btn btn-danger" onclick="clearAllData()"><i class="fas fa-exclamation-triangle"></i> Reset All Data</button></div><div id="dbClearResult" style="margin-top:0.5rem;font-size:11px;"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sending-overlay" id="sendingOverlay"><div class="spinner"></div><p>Sending...</p><p class="sub" id="sendingSub">Please wait</p></div>
+    <div class="toast" id="toast"><i class="fas fa-check"></i> <span id="toastMsg">Done</span></div>
+    <script>
+        const API_BASE = '';
+        let botUsername = '{{BOT_USERNAME}}';
+        let allMovies = [], allBundles = [], allUsers = [], allMessages = [], allPayments = [], allSubs = [];
+        let selectedMovies = new Set(), selectedBundleMovies = new Set();
+        let expandedPayGroups = new Set();
+        let showOnlyPending = false, currentCategory = 'all', searchQuery = '';
+        let selectedMoviePosterFile = null, selectedMoviePosterData = null, selectedBundlePosterFile = null, selectedBundlePosterData = null;
+        let selectedPostImages = [], lastSavedMovieToken = null, lastSavedMovieTitle = null, lastSavedBundleToken = null, lastSavedBundleTitle = null;
+        let _modalResolve = null;
+
+        function escapeHtml(t) { if (!t) return ''; const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+        function escapeAttr(t) { return String(t == null ? '' : t).replace(/&/g,'&amp;').replace(/'/g,'&#39;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+        function shortenTitle(title) { if (!title) return ''; const words = title.split(/\s+/); if (words.length <= 3) return title; return words.slice(0, 2).join(' ') + ' ' + words.slice(-1).join(' '); }
+        function parseTelegramLink(link) { const m = link.match(/t\.me\/c\/(\d+)\/(\d+)/); if (m) return { channelId: '-100' + m[1], messageId: m[2] }; return null; }
+
+        function checkPassword() {
+            const pw = document.getElementById('gatePassword').value;
+            const err = document.getElementById('gateError');
+            if (!pw) { err.classList.add('show'); return; }
+            fetch(API_BASE + '/api/check-password', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ password: pw }) })
+            .then(r => r.json()).then(d => {
+                if (d.success || d.ok || d.authenticated) {
+                    const injectBox = document.getElementById('gateInject'); injectBox.classList.add('show');
+                    let pct = 0; const timer = setInterval(() => { pct += 2; if (pct > 100) pct = 100; document.getElementById('gateInjectFill').style.width = pct + '%'; document.getElementById('gateInjectText').textContent = pct < 100 ? 'injecting...' + pct + '%' : 'logged in'; if (pct >= 100) { clearInterval(timer); setTimeout(() => { document.getElementById('passwordGate').classList.add('hidden'); localStorage.setItem('ctw_auth','true'); localStorage.setItem('ctw_auth_time', Date.now()); initDashboard(); }, 700); } }, 45);
+                } else { err.classList.add('show'); err.querySelector('span').textContent = 'fuck you never try me am undefeated'; document.getElementById('gatePassword').value = ''; document.getElementById('gateCard').classList.add('gate-shake'); setTimeout(()=>document.getElementById('gateCard').classList.remove('gate-shake'),500); }
+            }).catch(() => { err.classList.add('show'); });
+        }
+        (function() { if (localStorage.getItem('ctw_auth')==='true' && Date.now()-parseInt(localStorage.getItem('ctw_auth_time')||0)<12*3600*1000) { document.getElementById('passwordGate').classList.add('hidden'); initDashboard(); } else { loadGatePosters(); } })();
+        function logout() { setTimeout(() => { localStorage.removeItem('ctw_auth'); location.reload(); }, 500); }
+
+        // THEME
+        function initTheme() { const saved = localStorage.getItem('ctw_theme')||'dark'; document.documentElement.setAttribute('data-theme', saved); document.getElementById('themeBtn').innerHTML = saved === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>'; }
+        function toggleTheme() { const cur = document.documentElement.getAttribute('data-theme')||'dark'; const next = cur === 'dark' ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', next); localStorage.setItem('ctw_theme', next); document.getElementById('themeBtn').innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>'; }
+        initTheme();
+
+        function updateClock() {
+            const el = document.getElementById('timeDisplay');
+            if(!el) return;
+            const now = new Date();
+            el.textContent = now.toLocaleTimeString('en-KE', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            el.title = now.toLocaleString('en-KE');
+        }
+        updateClock(); setInterval(updateClock, 1000);
+
+        async function loadGatePosters() {
+            const strip = document.getElementById('gatePosterStrip');
+            if (!strip) return;
+            try {
+                const res = await fetch(API_BASE + '/api/movies');
+                const movies = await res.json();
+                let posters = movies.filter(m => m.poster_url).map(m => m.poster_url);
+                for (let i = posters.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [posters[i], posters[j]] = [posters[j], posters[i]];
+                }
+                posters = posters.slice(0, 8);
+                if (posters.length) {
+                    strip.innerHTML = posters.map((url, idx) =>
+                        '<img src="'+url+'" class="mini-poster" style="animation-delay:-'+(idx*1.2)+'s" onerror="this.style.display=\'none\'">'
+                    ).join('');
+                }
+            } catch(e) {
+                strip.innerHTML = '<div class="mini-poster placeholder"><i class="fas fa-film"></i></div>'.repeat(6);
+            }
+        }
+
+        function showPage(id, btn) { document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); const el=document.getElementById('page-'+id); if(el) el.classList.add('active'); document.querySelectorAll('.sidebar-item').forEach(b=>b.classList.remove('active')); if(btn) btn.classList.add('active'); const titles={overview:'Overview',movies:'Movies',addmovie:'Add Movie',bundles:'Movie Collections',postcreator:'Post Creator',users:'Users',payments:'Payments',subscriptions:'Subscriptions',inbox:'Inbox',broadcast:'Broadcast',settings:'Settings',database:'Database'}; document.getElementById('pageTitle').textContent=titles[id]||id; window.scrollTo({top:0,behavior:'smooth'}); closeSidebar(); }
+        function navigateTo(id) { const btn=document.querySelector('.sidebar-item[onclick*="\''+id+'\'"]'); showPage(id, btn); }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebarOverlay').classList.toggle('show'); }
+        function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('show'); }
+
+        function showToast(msg, type) { const t=document.getElementById('toast'); document.getElementById('toastMsg').textContent=msg; t.className='toast show'+(type==='error'?' error':''); clearTimeout(t._timer); t._timer=setTimeout(()=>t.classList.remove('show'),3500); }
+
+        async function loadStats() { try { const r=await fetch(API_BASE+'/api/stats'); const d=await r.json(); document.getElementById('statMovies').textContent=(d.total_movies||0).toLocaleString(); document.getElementById('statBundles').textContent=(d.total_bundles||0).toLocaleString(); document.getElementById('statUsers').textContent=(d.total_users||0).toLocaleString(); document.getElementById('statRevenue').textContent=(d.revenue||0).toLocaleString(); document.getElementById('statSales').textContent=(d.total_sales||0).toLocaleString(); document.getElementById('statActiveSubs').textContent=(d.active_subscriptions||0).toLocaleString(); updateQuickStatus(d); } catch(e) { console.error('Stats error:', e); } }
+        function updateQuickStatus(d) { const setBadge=(id,on)=>{const el=document.getElementById(id); if(!el)return; el.textContent=on?'ON':'OFF'; el.className='status-badge '+(on?'on':'off');}; if(d.card_payment_enabled!==undefined)setBadge('qsCard',d.card_payment_enabled); if(d.subscription_enabled!==undefined)setBadge('qsSub',d.subscription_enabled); if(d.cart_enabled!==undefined)setBadge('qsCart',d.cart_enabled); if(d.getbot_enabled!==undefined)setBadge('qsGetbot',d.getbot_enabled); const mpesa=document.getElementById('qsMpesa'); if(mpesa)mpesa.textContent=d.mpesa_sales||0; }
+
+        async function loadMovies() { try { const r=await fetch(API_BASE+'/api/movies'); allMovies=await r.json(); renderMovies(); renderBundlePicker(); } catch(e) {} }
+        function getFilteredMovies() { let m=allMovies; if(currentCategory!=='all') m=m.filter(x=>(x.category||'movie')===currentCategory); if(searchQuery) m=m.filter(x=>x.title.toLowerCase().includes(searchQuery)); return m; }
+
+        // Render the grid. Posters are lazy-loaded + async-decoded so the page never blocks on images.
+        function renderMovies() {
+            const filtered=getFilteredMovies();
+            document.getElementById('movieCountLabel').textContent='Showing '+filtered.length+' movies';
+            const grid=document.getElementById('moviesGrid');
+            if(!filtered.length){grid.innerHTML='<div class="empty-state"><i class="fas fa-film"></i><p>No movies found</p></div>';return;}
+            grid.innerHTML=filtered.map(m=>{
+                const isSel=selectedMovies.has(m.token);
+                const cat=m.category||'movie';
+                const poster=m.poster_url||m.thumbnail||'';
+                return '<div class="movie-card '+(isSel?'selected':'')+'" data-token="'+escapeAttr(m.token)+'" onclick="toggleSelect(\''+escapeAttr(m.token)+'\')">'
+                    +'<div class="select-overlay"><i class="fas '+(isSel?'fa-check':'')+'"></i></div>'
+                    +'<div class="poster-wrap">'
+                    +(poster ? '<img class="poster" loading="lazy" decoding="async" src="'+escapeAttr(poster)+'" onerror="this.style.display=\'none\';var f=this.nextElementSibling;if(f)f.style.display=\'flex\';" alt="">' : '')
+                    +'<div class="poster-fallback" style="display:'+(poster?'none':'flex')+'"><i class="fas fa-film"></i></div></div>'
+                    +'<div class="card-body"><div class="card-title">'+escapeHtml(m.title)+'</div><div class="card-meta"><span class="card-price">'+(m.price||10)+' KES</span><span class="card-tag">'+cat+'</span></div></div>'
+                    +'<div class="card-actions" onclick="event.stopPropagation()">'
+                    +'<button onclick="copyMovieLink(\''+escapeAttr(m.token)+'\','+(m.price||10)+',\''+escapeAttr(m.title)+'\')"><i class="fas fa-copy"></i></button>'
+                    +'<button onclick="sendMovieToChannel(\''+escapeAttr(m.token)+'\')"><i class="fas fa-paper-plane"></i></button>'
+                    +'<button onclick="openEditMovie(\''+escapeAttr(m.token)+'\')"><i class="fas fa-edit"></i></button>'
+                    +'<button class="danger" onclick="deleteMovie(\''+escapeAttr(m.token)+'\')"><i class="fas fa-trash"></i></button>'
+                    +'</div></div>';
+            }).join('');
+            updateSelectionLabel();
+            const cb=document.getElementById('createBundleBtn');
+            if(cb)cb.style.display=selectedMovies.size>1?'inline-flex':'none';
+        }
+
+        // Debounced search so typing doesn't rebuild the grid on every keystroke
+        let _searchTimer = null;
+        function searchMovies() {
+            clearTimeout(_searchTimer);
+            _searchTimer = setTimeout(() => {
+                searchQuery=document.getElementById('movieSearch').value.toLowerCase();
+                renderMovies();
+            }, 250);
+        }
+        document.getElementById('movieCategoryFilter').addEventListener('change',function(){currentCategory=this.value;renderMovies();});
+
+        // === FAST SELECTION: update ONLY the tapped card — no grid rebuild, instant on tap ===
+        function toggleSelect(token) {
+            const nowSelected = !selectedMovies.has(token);
+            if (nowSelected) selectedMovies.add(token); else selectedMovies.delete(token);
+
+            const card = document.querySelector('.movie-card[data-token="' + CSS.escape(token) + '"]');
+            if (card) {
+                card.classList.toggle('selected', nowSelected);
+                const icon = card.querySelector('.select-overlay i');
+                if (icon) icon.className = 'fas' + (nowSelected ? ' fa-check' : '');
+            }
+            updateSelectionLabel();
+            const cb = document.getElementById('createBundleBtn');
+            if (cb) cb.style.display = selectedMovies.size > 1 ? 'inline-flex' : 'none';
+            // Refresh the button-text editor only if the album card is open
+            if (document.getElementById('sendAlbumCard').style.display === 'block') updateButtonTextsArea();
+        }
+        function selectAllVisible(){getFilteredMovies().forEach(m=>selectedMovies.add(m.token));renderMovies(); updateButtonTextsArea();}
+        function clearSelection(){selectedMovies.clear();document.getElementById('sendAlbumCard').style.display='none';renderMovies(); updateButtonTextsArea();}
+        function updateSelectionLabel(){document.getElementById('selectionLabel').textContent=selectedMovies.size?selectedMovies.size+' selected':'';}
+        function updateButtonTextsArea(){
+            const area = document.getElementById('buttonTextsArea');
+            if (!area) return;
+            const lines = [];
+            let i = 1;
+            selectedMovies.forEach(token => {
+                const m = allMovies.find(x=>x.token===token);
+                if(m) {
+                    const suggested = (m.button_title || m.title || 'Movie').substring(0, 22);
+                    lines.push(i + '. ' + suggested);
+                    i++;
+                }
+            });
+            area.value = lines.join('\n');
+        }
+        function fillAlbumTitleFromSelection(){
+            const titles=[];
+            Array.from(selectedMovies).forEach(tok=>{
+                const m=(allMovies||[]).find(x=>x.token===tok);
+                if(m&&m.title) titles.push('➠ '+m.title);
+            });
+            const el=document.getElementById('albumTitle');
+            if(el) el.value = titles.join(' , ');
+        }
+        function sendSelectionToChannel(){if(!selectedMovies.size){showToast('Select at least one movie first','error');return;}document.getElementById('sendAlbumCard').style.display='block';updateButtonTextsArea();fillAlbumTitleFromSelection();document.getElementById('sendAlbumCard').scrollIntoView({behavior:'smooth'});}
+        async function confirmSendAlbum(){
+            const channel=document.getElementById('albumChannel').value.trim();
+            const title=document.getElementById('albumTitle').value.trim();
+            let perRow=parseInt(document.getElementById('albumPerRow').value)||3;
+            if(selectedMovies.size>=10)perRow=4;
+            if(!channel){showToast('Enter target channel','error');return;}
+            
+            const rawLines = document.getElementById('buttonTextsArea').value.split('\n').map(l=>l.trim()).filter(Boolean);
+            const tokens = Array.from(selectedMovies);
+            let customTitles = {};
+            tokens.forEach((token, idx) => {
+                let btnText = rawLines[idx] || '';
+                btnText = btnText.replace(/^\d+\.\s*/, '').trim();
+                if (btnText) customTitles[token] = btnText.substring(0, 40);
+            });
+
+            document.getElementById('sendingOverlay').classList.add('show');
+            try{
+                const r=await fetch(API_BASE+'/api/movies/send-album',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tokens:tokens,channel_id:channel,title,per_row:perRow, custom_titles:customTitles})});
+                const d=await r.json();
+                document.getElementById('sendingOverlay').classList.remove('show');
+                if(d.success){showToast('Album sent!');selectedMovies.clear();document.getElementById('sendAlbumCard').style.display='none';renderMovies();}
+                else showToast(d.error||'Failed','error');
+            }catch(e){document.getElementById('sendingOverlay').classList.remove('show');showToast('Error','error');}
+        }
+        async function sendMovieToChannel(token){document.getElementById('sendingOverlay').classList.add('show');try{const r=await fetch(API_BASE+'/api/movies/'+token+'/send-to-channel',{method:'POST'});const d=await r.json();document.getElementById('sendingOverlay').classList.remove('show');if(d.success)showToast('Sent!');else showToast(d.error||'Failed','error');}catch(e){document.getElementById('sendingOverlay').classList.remove('show');showToast('Error','error');}}
+        function copyMovieLink(token,price,title){const link='https://t.me/'+botUsername+'?start='+token;navigator.clipboard.writeText(shortenTitle(title)+' - '+link).then(()=>showToast('Copied!'));}
+        async function deleteMovie(token){if(!confirm('Delete?'))return;try{await fetch(API_BASE+'/api/movies/'+token,{method:'DELETE'});selectedMovies.delete(token);loadMovies();loadStats();showToast('Deleted');}catch(e){}}
+
+        // Upload Helpers
+        async function uploadToCatbox(file, retries=3){for(let a=1;a<=retries;a++){try{const fd=new FormData();fd.append('reqtype','fileupload');fd.append('fileToUpload',file);const ctrl=new AbortController();const tid=setTimeout(()=>ctrl.abort(),30000);const res=await fetch('https://catbox.moe/user/api.php',{method:'POST',body:fd,signal:ctrl.signal});clearTimeout(tid);if(!res.ok)throw new Error('HTTP '+res.status);const text=await res.text();if(!text||!text.startsWith('http'))throw new Error('Invalid');return text;}catch(err){if(a===retries)throw err;await new Promise(r=>setTimeout(r,2000*a));}}}
+        async function uploadImageWithRotation(file){try{const url=await uploadToCatbox(file);return url;}catch(e){showToast('Catbox failed, trying Litterbox...','error');try{const fd=new FormData();fd.append('reqtype','fileupload');fd.append('time','72h');fd.append('fileToUpload',file);const ctrl=new AbortController();const tid=setTimeout(()=>ctrl.abort(),45000);const res=await fetch('https://litterbox.catbox.moe/resources/internals/api.php',{method:'POST',body:fd,signal:ctrl.signal});clearTimeout(tid);if(!res.ok)throw new Error('HTTP '+res.status);const text=await res.text();if(text.startsWith('http'))return text;throw new Error('Invalid');}catch(e2){throw new Error('All uploads failed');}}}
+
+        function handleMoviePosterUpload(event){const file=event.target.files[0];if(!file)return;selectedMoviePosterFile=file;const reader=new FileReader();reader.onload=function(e){selectedMoviePosterData=e.target.result;document.getElementById('posterPreviewGallery').innerHTML='<div class="image-thumb"><img src="'+selectedMoviePosterData+'"><button class="remove-img" onclick="removeMoviePoster()"><i class="fas fa-times"></i></button></div>';document.getElementById('posterPreviewGallery').style.display='grid';};reader.readAsDataURL(file);}
+        function removeMoviePoster(){selectedMoviePosterFile=null;selectedMoviePosterData=null;document.getElementById('moviePosterInput').value='';document.getElementById('posterPreviewGallery').style.display='none';}
+        document.getElementById('privateLink').addEventListener('input',function(e){const parsed=parseTelegramLink(e.target.value);if(parsed){document.getElementById('channelId').value=parsed.channelId;document.getElementById('messageId').value=parsed.messageId;}});
+        async function generateMovieLink(){const title=document.getElementById('movieTitle').value.trim();const privateLink=document.getElementById('privateLink').value.trim();const channelId=document.getElementById('channelId').value.trim();const messageId=document.getElementById('messageId').value.trim();const price=parseInt(document.getElementById('moviePrice').value)||10;const category=document.getElementById('movieCategory').value;const description=document.getElementById('movieDescription').value.trim();if(!title||!channelId||!messageId){showToast('Fill required fields','error');return;}let posterUrl='';if(selectedMoviePosterFile){try{posterUrl=await uploadImageWithRotation(selectedMoviePosterFile);}catch(e){posterUrl=selectedMoviePosterData||'';}}else if(selectedMoviePosterData){posterUrl=selectedMoviePosterData;}try{const payload={title,channel_id:channelId,message_id:parseInt(messageId),private_link:privateLink,price,category};if(description)payload.description=description;if(posterUrl)payload.poster_url=posterUrl;const res=await fetch(API_BASE+'/api/movies',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const data=await res.json();if(data.success){lastSavedMovieToken=data.token;lastSavedMovieTitle=data.movie.title;document.getElementById('movieLinkDisplay').textContent='https://t.me/'+botUsername+'?start='+data.token;document.getElementById('movieResultPrice').textContent=data.price;document.getElementById('movieNameText').textContent=data.movie.title;document.getElementById('movieNameDisplay').style.display='flex';document.getElementById('movieResultBox').classList.add('show');document.getElementById('sendMovieToChannelBtn').style.display='inline-flex';document.getElementById('sendMovieResultToChannelBtn').style.display='inline-flex';loadMovies();showToast('Saved!');setTimeout(()=>clearMovieForm(),1500);}}catch(err){showToast('Error: '+err.message,'error');}}
+        async function sendSavedMovieToChannel(){if(!lastSavedMovieToken)return;try{const r=await fetch(API_BASE+'/api/movies/'+lastSavedMovieToken+'/send-to-channel',{method:'POST'});const d=await r.json();if(d.success)showToast('Sent!');}catch(e){}}
+        function copyMovieResultLink(){const link=document.getElementById('movieLinkDisplay').textContent;navigator.clipboard.writeText(shortenTitle(lastSavedMovieTitle||'Movie')+' - '+link);showToast('Copied!');}
+        function clearMovieForm(){document.getElementById('movieTitle').value='';document.getElementById('moviePrice').value='10';document.getElementById('movieResultBox').classList.remove('show');document.getElementById('movieNameDisplay').style.display='none';removeMoviePoster();lastSavedMovieToken=null;}
+
+        // Bundles
+        function renderBundlePicker(){const picker=document.getElementById('bundleMoviePicker');if(!allMovies.length){picker.innerHTML='<div class="empty-state"><i class="fas fa-film"></i><p>No movies yet</p></div>';return;}picker.innerHTML=allMovies.map((m,idx)=>{const isSelected=selectedBundleMovies.has(idx);return '<div class="movie-picker-item '+(isSelected?'selected':'')+'" data-idx="'+idx+'" onclick="toggleBundleMovie('+idx+')"><input type="checkbox" '+(isSelected?'checked':'')+' onclick="event.stopPropagation()"><span class="picker-title">'+escapeHtml(m.title)+'</span><span class="picker-price">'+(m.price||10)+' KES</span></div>';}).join('');updateBundleSelectedSummary();}
+        function toggleBundleMovie(idx){const item=document.querySelector('.movie-picker-item[data-idx="'+idx+'"]');if(!item)return;const cb=item.querySelector('input[type="checkbox"]');if(selectedBundleMovies.has(idx)){selectedBundleMovies.delete(idx);cb.checked=false;item.classList.remove('selected');}else{selectedBundleMovies.add(idx);cb.checked=true;item.classList.add('selected');}updateBundleSelectedSummary();}
+        function updateBundleSelectedSummary(){const c=selectedBundleMovies.size;document.getElementById('bundleSelectedCount').textContent=c;document.getElementById('bundleSelectedSummary').style.display=c>0?'flex':'none';}
+        function selectAllBundle(){allMovies.forEach((_,i)=>selectedBundleMovies.add(i));renderBundlePicker();}
+        function deselectAllBundle(){selectedBundleMovies.clear();renderBundlePicker();}
+        function selectFilteredBundle(){const q=document.getElementById('bundleSearch').value.toLowerCase();allMovies.forEach((m,i)=>{if(m.title.toLowerCase().includes(q))selectedBundleMovies.add(i);});renderBundlePicker();}
+        function filterBundlePicker(){const q=document.getElementById('bundleSearch').value.toLowerCase();document.querySelectorAll('.movie-picker-item').forEach(i=>{i.style.display=i.querySelector('.picker-title').textContent.toLowerCase().includes(q)?'flex':'none';});}
+        function handleBundlePosterUpload(event){const file=event.target.files[0];if(!file)return;selectedBundlePosterFile=file;const reader=new FileReader();reader.onload=function(e){selectedBundlePosterData=e.target.result;document.getElementById('bundlePosterPreviewGallery').innerHTML='<div class="image-thumb"><img src="'+selectedBundlePosterData+'"><button class="remove-img" onclick="removeBundlePoster()"><i class="fas fa-times"></i></button></div>';document.getElementById('bundlePosterPreviewGallery').style.display='grid';};reader.readAsDataURL(file);}
+        function removeBundlePoster(){selectedBundlePosterFile=null;selectedBundlePosterData=null;document.getElementById('bundlePosterInput').value='';document.getElementById('bundlePosterPreviewGallery').style.display='none';}
+        
+        async function editBundle(token) {
+            try {
+                const r = await fetch(API_BASE + '/api/series/' + token);
+                const b = await r.json();
+                if (b.error) { showToast(b.error, 'error'); return; }
+                document.getElementById('bundleTitle').value = b.title || '';
+                document.getElementById('bundlePrice').value = b.price || 50;
+                document.getElementById('bundleCategory').value = b.category || 'series';
+                document.getElementById('bundleDescription').value = b.description || '';
+                selectedBundleMovies.clear();
+                const eps = b.episodes || [];
+                allMovies.forEach((m, idx) => {
+                    if (eps.some(e => e.token === m.token || e.title === m.title)) selectedBundleMovies.add(idx);
+                });
+                renderBundlePicker();
+                lastSavedBundleToken = token;
+                showToast('Loaded for edit — change fields and tap Generate to update');
+                document.getElementById('bundleTitle').scrollIntoView({behavior:'smooth'});
+            } catch(e) { showToast('Failed to load collection', 'error'); }
+        }
+        async function generateBundle(){const title=document.getElementById('bundleTitle').value.trim();const price=parseInt(document.getElementById('bundlePrice').value);const category=document.getElementById('bundleCategory').value;const description=document.getElementById('bundleDescription').value.trim();if(!title||!price||price<1||selectedBundleMovies.size<2){showToast('Fill all and select 2+','error');return;}let posterUrl='';if(selectedBundlePosterFile){try{posterUrl=await uploadImageWithRotation(selectedBundlePosterFile);}catch(e){posterUrl=selectedBundlePosterData||'';}}else if(selectedBundlePosterData){posterUrl=selectedBundlePosterData;}const episodes=[];selectedBundleMovies.forEach(idx=>{const m=allMovies[idx];if(m)episodes.push({private_link:m.private_link||'',title:m.title,channel_id:String(m.channel_id||''),message_id:m.message_id||0,token:m.token||'',file_id:m.file_id||'',file_type:m.file_type||'video'});});try{const payload={title,price,category,episodes};if(description)payload.description=description;if(posterUrl)payload.poster_url=posterUrl;const res=await fetch(API_BASE+'/api/series',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const data=await res.json();if(data.success){lastSavedBundleToken=data.token;lastSavedBundleTitle=title;document.getElementById('bundleLinkDisplay').textContent='https://t.me/'+botUsername+'?start='+data.token;document.getElementById('bundleResultPrice').textContent=data.price;document.getElementById('bundleResultCount').textContent=data.episode_count;document.getElementById('bundleNameText').textContent=title;document.getElementById('bundleNameDisplay').style.display='flex';if(posterUrl){document.getElementById('bundleResultPosterImg').src=posterUrl;document.getElementById('bundleResultPoster').style.display='block';}document.getElementById('bundleResultBox').classList.add('show');document.getElementById('sendBundleToChannelBtn').style.display='inline-flex';document.getElementById('sendBundleResultToChannelBtn').style.display='inline-flex';loadBundles();showToast('Created!');setTimeout(()=>clearBundleForm(),1500);}else showToast(data.error||'Error','error');}catch(err){showToast('Error','error');}}
+        async function sendSavedBundleToChannel(){if(!lastSavedBundleToken)return;try{const r=await fetch(API_BASE+'/api/series/'+lastSavedBundleToken+'/send-to-channel',{method:'POST'});const d=await r.json();if(d.success)showToast('Sent!');}catch(e){}}
+        function copyBundleResultLink(){const link=document.getElementById('bundleLinkDisplay').textContent;navigator.clipboard.writeText(shortenTitle(lastSavedBundleTitle||'Bundle')+' - '+link);showToast('Copied!');}
+        function clearBundleForm(){document.getElementById('bundleTitle').value='';document.getElementById('bundlePrice').value='50';document.getElementById('bundleDescription').value='';document.getElementById('bundleResultBox').classList.remove('show');removeBundlePoster();selectedBundleMovies.clear();renderBundlePicker();lastSavedBundleToken=null;}
+
+        async function loadBundles(){try{const r=await fetch(API_BASE+'/api/series');allBundles=await r.json()||[];renderBundles();}catch(e){}}
+        function renderBundles(){
+            const list=document.getElementById('bundlesList');
+            if(!allBundles.length){list.innerHTML='<div class="empty-state"><i class="fas fa-layer-group"></i><p>No movie collections yet</p></div>';return;}
+            list.innerHTML = '<div class="movies-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;">' +
+                allBundles.map(b => {
+                    const poster = b.poster_url || '';
+                    const epCount = b.episode_count || (b.episodes||[]).length || 0;
+                    const title = escapeHtml(b.title || 'Collection');
+                    const price = b.price || 0;
+                    return '<div class="movie-card" data-token="'+escapeAttr(b.token)+'" style="display:flex;flex-direction:column;">' +
+                        '<div class="poster-wrap" style="position:relative;aspect-ratio:2/3;background:var(--bg-elevated);border-radius:10px;overflow:hidden;">' +
+                            (poster
+                                ? '<img class="poster" loading="lazy" decoding="async" src="'+escapeAttr(poster)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\'" alt="">'
+                                : '<div class="poster-fallback" style="display:flex;align-items:center;justify-content:center;height:100%;"><i class="fas fa-layer-group" style="font-size:28px;opacity:.4;"></i></div>') +
+                            '<div style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.7);color:var(--gold);font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;">'+price+' KES</div>' +
+                            '<div style="position:absolute;bottom:6px;left:6px;background:var(--accent);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:6px;"><i class="fas fa-film"></i> '+epCount+'</div>' +
+                        '</div>' +
+                        '<div class="card-body" style="padding:8px 4px 4px;">' +
+                            '<div class="card-title" style="font-size:12px;font-weight:600;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">'+title+'</div>' +
+                            '<div class="card-meta" style="font-size:10px;color:var(--text-muted);margin-top:2px;">Collection · '+epCount+' movies</div>' +
+                        '</div>' +
+                        '<div class="card-actions" style="display:flex;gap:3px;flex-wrap:wrap;padding:0 2px 6px;" onclick="event.stopPropagation()">' +
+                            '<button class="btn btn-sm btn-blue" onclick="sendBundleToChannel(\''+escapeAttr(b.token)+'\')" title="Send"><i class="fas fa-paper-plane"></i></button>' +
+                            '<button class="btn btn-sm btn-secondary" onclick="sendBundleWithButtons(\''+escapeAttr(b.token)+'\')" title="Send Buttons"><i class="fas fa-mouse-pointer"></i></button>' +
+                            '<button class="btn btn-sm btn-secondary" onclick="copyBundleLink(\''+escapeAttr(b.token)+'\')" title="Copy link"><i class="fas fa-link"></i></button>' +
+                            '<button class="btn btn-sm btn-secondary" onclick="editBundle(\''+escapeAttr(b.token)+'\')" title="Edit"><i class="fas fa-edit"></i></button>' +
+                            '<button class="btn btn-sm btn-secondary" onclick="toggleBundleEpisodes(\''+escapeAttr(b.token)+'\')" title="Movies"><i class="fas fa-list"></i></button>' +
+                            '<button class="btn btn-sm btn-danger" onclick="deleteBundle(\''+escapeAttr(b.token)+'\')" title="Delete"><i class="fas fa-trash"></i></button>' +
+                        '</div>' +
+                        '<div class="bundle-episodes" id="episodes-'+escapeAttr(b.token)+'" style="display:none;padding:0 6px 8px;font-size:11px;">' +
+                            (b.episodes||[]).map(ep => '<div class="episode-item" style="padding:3px 0;border-bottom:1px solid var(--border);">'+escapeHtml(ep.title||'Episode')+'</div>').join('') +
+                        '</div>' +
+                    '</div>';
+                }).join('') +
+            '</div>';
+        }
+        function toggleBundleEpisodes(token){
+            const el=document.getElementById('episodes-'+token);
+            if(!el) return;
+            el.style.display = (el.style.display === 'none' || !el.style.display) ? 'block' : 'none';
+        }
+        async function deleteBundle(token){if(!confirm('Delete?'))return;try{await fetch(API_BASE+'/api/series/'+token,{method:'DELETE'});loadBundles();showToast('Deleted');}catch(e){}}
+        async function sendBundleToChannel(token){
+            const collectionName = prompt('Collection name to show on the channel post (leave empty to keep current title):');
+            try{
+                const r = await fetch(API_BASE+'/api/series/'+token+'/send-to-channel',{
+                    method:'POST',
+                    headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({collection_name: collectionName || ''})
+                });
+                const d = await r.json();
+                if(d.success) showToast('Sent to channel!');
+                else showToast(d.error||'Failed','error');
+            }catch(e){ showToast('Error','error'); }
+        }
+        function copyBundleLink(token){
+            const link = 'https://t.me/' + botUsername + '?start=' + token;
+            navigator.clipboard.writeText(link).then(() => showToast('Token link copied!')).catch(() => prompt('Copy this link:', link));
+        }
+        async function sendBundleWithButtons(token){
+            const rows = prompt('How many rows of buttons? (2, 3, 4, 5)', '3');
+            if (!rows) return;
+            const channel = prompt('Target channel (@username or -100id). Leave empty for default:', '');
+            try{
+                const r=await fetch(API_BASE+'/api/series/'+token+'/send-as-buttons',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({per_row:parseInt(rows), channel: channel || undefined})});
+                const d=await r.json();if(d.success)showToast('Buttons Sent!');else showToast(d.error||'Failed','error');
+            }catch(e){showToast('Error','error');}
+        }
+
+        // Post Creator
+        function handlePostImages(event){const files=Array.from(event.target.files);if(!files.length)return;for(const file of files){if(!file.type.startsWith('image/'))continue;const reader=new FileReader();reader.onload=function(e){selectedPostImages.push({file:file,dataUrl:e.target.result});renderPostImageGallery();updatePostPreview();};reader.readAsDataURL(file);}}
+        function renderPostImageGallery(){const g=document.getElementById('postImageGallery');if(!selectedPostImages.length){g.style.display='none';return;}g.style.display='grid';g.innerHTML=selectedPostImages.map((img,i)=>'<div class="image-thumb"><img src="'+img.dataUrl+'"><button class="remove-img" onclick="removePostImage('+i+')"><i class="fas fa-times"></i></button></div>').join('');}
+        function removePostImage(index){selectedPostImages.splice(index,1);renderPostImageGallery();updatePostPreview();}
+        function parseButtonsFromText(text){
+            const buttons=[];
+            if(!text||!text.trim())return buttons;
+            text=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+            const re=/^\s*(.+?)\s*-\s*(https?:\/\/\S+)\s*$/;
+            const urlOnly=/^(https?:\/\/\S+)$/;
+            const parts = text.includes('|') ? text.split('|') : text.trim().split('\n');
+            let autoIdx = 1;
+            for(const part of parts){
+                const trimmed=part.trim();
+                if(!trimmed) continue;
+                const match=re.exec(trimmed);
+                if(match){ buttons.push({text:match[1].trim(),url:match[2].trim()}); }
+                else if(urlOnly.test(trimmed)){ buttons.push({text:String(autoIdx++), url:trimmed}); }
+            }
+            return buttons.map(b=>({...b,text:shortenTitle(b.text)}));
+        }
+        function updatePostPreview(){
+            const textEl=document.getElementById('postText');
+            const btnEl=document.getElementById('postButtonsText');
+            const prevEl=document.getElementById('postPreview');
+            const areaEl=document.getElementById('buttonPreviewArea');
+            if(!prevEl) return;
+            const text=(textEl&&textEl.value||'').trim();
+            const buttonsText=(btnEl&&btnEl.value||'').trim();
+            const perRow=parseInt((document.getElementById('postButtonsPerRow')||{}).value)||3;
+            let html='<div class="preview-label"><i class="fas fa-eye"></i> Live Preview</div>';
+            if(typeof selectedPostImages!=='undefined' && selectedPostImages.length){
+                html+='<div style="display:flex;gap:4px;flex-wrap:wrap;margin:6px 0;">'+selectedPostImages.map(img=>'<img src="'+(img.dataUrl||img.preview||'')+'" style="width:48px;height:64px;object-fit:cover;border-radius:6px;">').join('')+'</div>';
+            }
+            if(text) html+='<div style="font-size:13px;margin-bottom:6px;">'+escapeHtml(text).replace(/\n/g,'<br>')+'</div>';
+            const buttons=parseButtonsFromText(buttonsText);
+            if(buttons.length){
+                html+='<div class="btn-preview-grid" style="display:grid;grid-template-columns:repeat('+perRow+',1fr);gap:4px;">';
+                for(const btn of buttons) html+='<div class="preview-btn" style="padding:6px;border:1px solid var(--border);border-radius:8px;text-align:center;font-size:11px;">'+escapeHtml(btn.text)+'</div>';
+                html+='</div><div style="font-size:10px;color:var(--text-muted);margin-top:4px;">'+buttons.length+' button(s)</div>';
+            } else if(!text && !(typeof selectedPostImages!=='undefined' && selectedPostImages.length)){
+                html+='<span style="color:var(--text-muted)">Your post preview will appear here...</span>';
+            }
+            prevEl.innerHTML=html;
+            if(areaEl) areaEl.innerHTML=buttons.length?'<div class="btn-preview-grid" style="display:grid;grid-template-columns:repeat('+perRow+',1fr);gap:4px;">'+buttons.map(b=>'<div class="preview-btn" style="padding:6px;border:1px solid var(--border);border-radius:8px;text-align:center;font-size:11px;">'+escapeHtml(b.text)+'</div>').join('')+'</div>':'';
+        }
+        async function sendChannelPost(){const text=document.getElementById('postText').value.trim();const buttonsText=document.getElementById('postButtonsText').value.trim();const channel=document.getElementById('postChannel').value.trim();let perRow=parseInt(document.getElementById('postButtonsPerRow').value)||3;const buttons=parseButtonsFromText(buttonsText);if(buttons.length>=10)perRow=4;const delay=parseFloat(document.getElementById('postDelay').value)||2;if(!text&&!selectedPostImages.length){showToast('Enter caption or upload image','error');return;}if(!channel){showToast('Enter target channel','error');return;}if(!confirm('Send to '+channel+'?'))return;const overlay=document.getElementById('sendingOverlay');overlay.classList.add('show');try{const fd=new FormData();fd.append('text',text);fd.append('buttons',buttonsText);fd.append('channel',channel);fd.append('per_row',perRow);fd.append('delay',delay);selectedPostImages.forEach((img,i)=>fd.append('image'+i,img.file));fd.append('image_count',selectedPostImages.length);const res=await fetch(API_BASE+'/api/channel-post',{method:'POST',body:fd});const data=await res.json();overlay.classList.remove('show');const box=document.getElementById('postResultBox');box.className='post-result-box';if(data.success){box.classList.add('success','show');showToast('Sent!');}else{box.classList.add('error','show');showToast(data.error||'Failed','error');}}catch(e){overlay.classList.remove('show');showToast('Error','error');}}
+        function clearPostForm(){document.getElementById('postText').value='';document.getElementById('postButtonsText').value='';selectedPostImages=[];renderPostImageGallery();updatePostPreview();}
+
+        // Users
+        async function loadUsers(){try{const r=await fetch(API_BASE+'/api/users');allUsers=await r.json();document.getElementById('userCountLabel').textContent=allUsers.length+' users';renderUsers();}catch(e){}}
+        function renderUsers(){
+            const q=(document.getElementById('userSearch')||{}).value.toLowerCase();
+            let u=allUsers||[];
+            if(q) u=u.filter(x =>
+                (x.first_name||'').toLowerCase().includes(q) ||
+                (x.last_name||'').toLowerCase().includes(q) ||
+                (x.username||'').toLowerCase().includes(q) ||
+                String(x.user_id).includes(q)
+            );
+            const list=document.getElementById('usersList');
+            if(!list) return;
+            if(!u.length){list.innerHTML='<div class="empty-state"><i class="fas fa-users"></i><p>No users found</p></div>';return;}
+            list.innerHTML=u.map(x=>{
+                const banned = !!(x.banned || (x.blocked && x.block_mode!=='hard'));
+                const hard = !!(x.hard_blocked || x.block_mode==='hard');
+                const muted = !!x.muted || (x.mute_until && new Date(x.mute_until)>new Date());
+                let badge='';
+                if(hard) badge=' <span style="color:#ff3b30;font-size:11px;">BLOCKED</span>';
+                else if(banned) badge=' <span style="color:#ff9500;font-size:11px;">BANNED</span>';
+                else if(muted) badge=' <span style="color:#5856d6;font-size:11px;">MUTED</span>';
+                const name = escapeHtml([x.first_name,x.last_name].filter(Boolean).join(' ') || 'Unknown');
+                const uname = escapeHtml(x.username || 'no_username');
+                const btns = `
+                  <button class="btn btn-sm" onclick="replyToUser(${x.user_id})" title="Reply"><i class="fas fa-reply"></i></button>
+                  <button class="btn btn-sm btn-secondary" onclick="muteUser(${x.user_id})" title="Mute">Mute</button>
+                  <button class="btn btn-sm btn-secondary" onclick="banUser(${x.user_id})" title="Ban">Ban</button>
+                  <button class="btn btn-sm" onclick="hardBlockUser(${x.user_id})" title="Hard block">Block</button>
+                  <button class="btn btn-sm btn-primary" onclick="unbanUser(${x.user_id})" title="Unban / Unblock"><i class="fas fa-check"></i></button>
+                `;
+                return `<div class="list-item"><div><h4>${name}${badge}</h4><p class="meta">@${uname} · ID: ${x.user_id}</p></div><div style="display:flex;gap:4px;flex-wrap:wrap;">${btns}</div></div>`;
+            }).join('');
+        }
+        async function muteUser(id){
+            const dur = await openAppModal('Mute user', [
+                {id:'duration', label:'Duration (2m / 5m / 1h / 24h / 2d / 7d / 30d)', type:'text', value:'1h', placeholder:'1h'}
+            ]);
+            if(!dur) return;
+            const duration = (dur.duration || '1h').trim();
+            try{
+                const r=await fetch(API_BASE+'/api/users/'+id+'/mute',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({duration})});
+                const d=await r.json().catch(()=>({}));
+                showToast(d.success!==false?'User muted ('+duration+')':(d.error||'Failed'));
+                loadUsers();
+            }catch(e){showToast('Error','error');}
+        }
+        async function banUser(id){
+            if(!confirm('Ban this user? They can unlock by paying ban fee if enabled.')) return;
+            try{
+                const r=await fetch(API_BASE+'/api/users/'+id+'/ban',{method:'POST'});
+                const d=await r.json().catch(()=>({}));
+                showToast(d.success!==false?'User banned':'Failed');
+                loadUsers();
+            }catch(e){showToast('Error','error');}
+        }
+        async function hardBlockUser(id){
+            if(!confirm('Hard block? Bot will ignore this user completely until you unblock.')) return;
+            try{
+                const r=await fetch(API_BASE+'/api/users/'+id+'/hardblock',{method:'POST'});
+                const d=await r.json().catch(()=>({}));
+                showToast(d.success!==false?'User hard-blocked':'Failed');
+                loadUsers();
+            }catch(e){showToast('Error','error');}
+        }
+        async function unbanUser(id){
+            try{
+                const r=await fetch(API_BASE+'/api/users/'+id+'/unban',{method:'POST'});
+                const d=await r.json().catch(()=>({}));
+                showToast(d.success!==false?'User unbanned — welcome message sent':'Failed');
+                loadUsers();
+            }catch(e){showToast('Error','error');}
+        }
+
+        // Payments
+        async function loadPayments(){
+            const list=document.getElementById('paymentsList');
+            try{
+                const r=await fetch(API_BASE+'/api/payments');
+                if(!r.ok) throw new Error('HTTP '+r.status);
+                const data=await r.json();
+                allPayments=Array.isArray(data)?data:[];
+                renderPayments();
+            }catch(e){
+                console.error('loadPayments',e);
+                allPayments=[];
+                if(list) list.innerHTML='<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Could not load payments. Tap refresh.</p><button class="btn btn-sm" onclick="loadPayments()">Retry</button></div>';
+            }
+        }
+        function renderPayments(){
+            const list = document.getElementById('paymentsList');
+            try{
+            if(!list) return;
+            const searchTerm = ((document.getElementById('paymentUserSearch')||{}).value||'').trim().toLowerCase();
+            let filtered = allPayments || [];
+            if(searchTerm){
+                filtered = filtered.filter(p => {
+                    const uid = String(p.user_id||'');
+                    const un = String(p.username||'').toLowerCase();
+                    const nm = String(p.name||p.first_name||'').toLowerCase();
+                    const title = String(p.movie_title||p.title||'').toLowerCase();
+                    return uid.includes(searchTerm) || un.includes(searchTerm) || nm.includes(searchTerm) || title.includes(searchTerm);
+                });
+            }
+            const countEl = document.getElementById('paymentCountLabel');
+            if(countEl) countEl.textContent = filtered.length + ' shown';
+            const groups = {};
+            filtered.forEach(p => {
+                const k = String(p.user_id||'unknown');
+                if(!groups[k]) groups[k] = [];
+                groups[k].push(p);
+            });
+            const keys = Object.keys(groups);
+            if(!keys.length){
+                list.innerHTML = '<div class="empty-state"><p>No payments found</p></div>';
+                return;
+            }
+            list.innerHTML = keys.map(uid => {
+                const wasOpen = expandedPayGroups.has('pg_'+uid);
+                const items = groups[uid];
+                const first = items[0]||{};
+                const uname = first.username ? '@'+first.username : '';
+                const name = first.name || first.first_name || '';
+                const paid = items.filter(x => (x.status||'')==='success').length;
+                const pending = items.filter(x => (x.status||'')!=='success').length;
+                const totalKes = items.reduce((s,x)=>s+(parseInt(x.amount)||0),0);
+                const gid = 'pg_'+uid;
+                const rows = items.slice(0,80).map((p,idx) => {
+                    const st = (p.status||'pending').toUpperCase();
+                    const stClass = st==='SUCCESS'||st==='PAID'?'paid':(st==='FAILED'?'failed':'pending');
+                    const stIcon = (st==='SUCCESS'||st==='PAID')
+                        ? '<i class="fas fa-check-circle" style="color:#2ecc71;font-size:18px;margin-right:5px;"></i>'
+                        : (st==='FAILED' ? '<i class="fas fa-times-circle" style="color:#ff7675;font-size:16px;margin-right:5px;"></i>' : '<i class="fas fa-clock" style="color:#fdcb6e;font-size:13px;margin-right:5px;"></i>');
+                    let itemLabel = p.movie_title || p.title || '';
+                    const titles = Array.isArray(p.titles) ? p.titles.filter(Boolean) : [];
+                    if(!itemLabel && titles.length) itemLabel = titles.slice(0,2).join(', ') + (titles.length>2?'…':'');
+                    if(!itemLabel && p.is_cart) itemLabel = 'Cart ×' + ((p.cart_tokens||[]).length || '?');
+                    if(!itemLabel && p.plan) itemLabel = 'Plan: '+p.plan;
+                    if(!itemLabel) itemLabel = 'Item';
+                    const detailId = 'pd_'+uid+'_'+idx;
+                    const fullList = titles.length ? titles.map((tt,i)=> (i+1)+'. '+tt).join('<br>') : escapeHtml(itemLabel);
+                    const hasExpand = titles.length > 1 || (p.cart_tokens||[]).length > 1;
+                    return `<div class="pay-row" style="padding:8px 0;border-bottom:1px solid var(--border,#333);">
+                        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                            <div>
+                                <span class="badge ${stClass}">${stIcon}${st}</span>
+                                <span style="margin-left:6px;">${escapeHtml(itemLabel)}</span>
+                                ${hasExpand?`<button class="btn btn-sm" style="margin-left:6px;" onclick="togglePayGroup('${detailId}')" title="Expand">▼</button>`:''}
+                            </div>
+                            <strong>${parseInt(p.amount)||0} KES</strong>
+                        </div>
+                        <div style="font-size:11px;opacity:0.7;margin-top:2px;">${p.created_at||''}</div>
+                        <div id="${detailId}" style="display:none;margin-top:6px;padding:8px;background:var(--card-bg,#1a1a1a);border-radius:8px;font-size:12px;">${fullList}</div>
+                        ${(st!=='SUCCESS'&&st!=='PAID')?`<button class="btn btn-sm" style="margin-top:6px;" onclick="sendPendingPayment('${p._id||p.reference}')">Send to user</button>`:''}
+                    </div>`;
+                }).join('');
+                return `<div class="card" style="margin-bottom:12px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+                        <div><strong>${escapeHtml(name||uname||('ID '+uid))}</strong> · ID ${uid}
+                        <div style="font-size:11px;opacity:0.7;">${items.length} payments · ${paid} paid · ${pending} pending · ${totalKes} KES</div></div>
+                        <div>
+                            <button class="btn btn-sm" onclick="togglePayGroup('${gid}')">▼</button>
+                            <button class="btn btn-sm" onclick="replyToUser(${uid})">↩ Reply</button>
+                        </div>
+                    </div>
+                    <div id="${gid}" style="display:${wasOpen?'block':'none'};margin-top:8px;border-top:1px solid var(--border,#333);">${rows}</div>
+                </div>`;
+            }).join('');
+            }catch(e){ console.error('renderPayments', e); if(list) list.innerHTML='<div class="empty-state"><p>Could not render payments.</p><button class="btn btn-sm" onclick="loadPayments()">Retry</button></div>'; }
+        }
+        
+        async function sendPendingPayment(refOrId){
+            try{
+                const p = (allPayments||[]).find(x => String(x._id)===String(refOrId) || String(x.reference)===String(refOrId));
+                const userId = p ? p.user_id : null;
+                const amount = p ? (p.amount||0) : 0;
+                if(!userId){ showToast('No user on this payment','error'); return; }
+                const titles = (p && p.titles && p.titles.length) ? p.titles : [];
+                const r = await fetch(API_BASE+'/api/send-payment-pending',{
+                    method:'POST',
+                    headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({
+                        user_id: userId,
+                        amount: amount,
+                        reference: p && p.reference,
+                        titles: titles,
+                        movie_title: p && (p.movie_title || p.title)
+                    })
+                });
+                const d = await r.json().catch(()=>({}));
+                if(d.success) showToast('Pending payment sent');
+                else showToast(d.error||'Failed to send','error');
+            }catch(e){ showToast('Send failed','error'); }
+        }
+
+        function togglePayGroup(id){
+            const el = document.getElementById(id);
+            if(!el) return;
+            const open = el.style.display==='none' || !el.style.display;
+            el.style.display = open ? 'block' : 'none';
+            if(open) expandedPayGroups.add(id); else expandedPayGroups.delete(id);
+        }
+
+        function openAppModal(title, fields){
+            return new Promise((resolve) => {
+                _modalResolve = resolve;
+                document.getElementById('appModalTitle').textContent = title || 'Input';
+                const body = document.getElementById('appModalBody');
+                body.innerHTML = (fields||[]).map(f => {
+                    if(f.type === 'textarea'){
+                        return `<div class="input-group" style="margin-bottom:10px;"><label>${f.label||''}</label><textarea id="mf_${f.id}" rows="${f.rows||4}" placeholder="${f.placeholder||''}" style="width:100%;">${f.value||''}</textarea></div>`;
+                    }
+                    return `<div class="input-group" style="margin-bottom:10px;"><label>${f.label||''}</label><input type="${f.type||'text'}" id="mf_${f.id}" value="${f.value||''}" placeholder="${f.placeholder||''}" style="width:100%;"></div>`;
+                }).join('');
+                const modal = document.getElementById('appModal');
+                modal.style.display = 'flex';
+                document.getElementById('appModalOk').onclick = () => {
+                    const out = {};
+                    (fields||[]).forEach(f => {
+                        const el = document.getElementById('mf_'+f.id);
+                        out[f.id] = el ? el.value : '';
+                    });
+                    const r = _modalResolve;
+                    _modalResolve = null;
+                    const m = document.getElementById('appModal');
+                    if(m) m.style.display = 'none';
+                    if(r) r(out);
+                };
+            });
+        }
+        function closeAppModal(){
+            const modal = document.getElementById('appModal');
+            if(modal) modal.style.display = 'none';
+            if(_modalResolve){ _modalResolve(null); _modalResolve=null; }
+        }
+
+        async function replyToUser(userId) {
+            const res = await openAppModal('Reply to user ' + userId, [
+                {id:'msg', label:'Message (sent plain, no branding)', type:'textarea', rows:5, placeholder:'Type your reply...'}
+            ]);
+            if(res && res.msg && res.msg.trim()) replyApi(userId, res.msg.trim());
+        }
+        async function replyApi(userId, text) {
+            try {
+                const r = await fetch(API_BASE + '/api/messages/' + userId + '/reply', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({text: text, user_id: userId, plain: true})
+                });
+                const d = await r.json().catch(() => ({}));
+                showToast((d && d.success !== false) ? 'Sent!' : (d.error || 'Failed to send'), (d && d.success !== false) ? undefined : 'error');
+            } catch (e) { showToast('Error', 'error'); }
+        }
+
+        // Subs, Messages, Settings, DB
+        async function loadSubs(){try{const r=await fetch(API_BASE+'/api/subscriptions');allSubs=await r.json();renderSubs();}catch(e){}}
+        function renderSubs(){
+            const list=document.getElementById('subsList');
+            if(!allSubs.length){list.innerHTML='<div class="empty-state"><i class="fas fa-crown"></i><p>No active subscriptions</p></div>';return;}
+            list.innerHTML=allSubs.map(s=>{
+                const uid = s.user_id || s.userId || '?';
+                const uname = s.username ? '@'+s.username : (s.name || s.first_name || '');
+                const plan = (s.plan || 'Unknown').toUpperCase();
+                const expires = s.expires_at || s.expiry || s.end_date || '';
+                const watched = s.movies_watched || s.used || s.watched || 0;
+                const limit = s.limit || s.max_movies || s.remaining_limit || '?';
+                const remaining = (typeof limit === 'number') ? Math.max(0, limit - watched) : '?';
+                const status = (s.status || 'ACTIVE').toUpperCase();
+                return `<div class="list-item" style="flex-direction:column;align-items:stretch;gap:8px;padding:14px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+                        <div>
+                            <h4 style="margin:0 0 2px;">User ${uid} ${uname?('<span style="color:var(--text-muted);font-weight:500;">'+escapeHtml(String(uname))+'</span>'):''}</h4>
+                            <p class="meta" style="margin:0;">Plan: <strong>${escapeHtml(plan)}</strong> · <span class="badge badge-sub">${status}</span></p>
+                        </div>
+                        <div style="text-align:right;font-size:12px;color:var(--text-secondary);">
+                            ${expires ? 'Expires: '+escapeHtml(String(expires).slice(0,16)) : ''}
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;font-size:12px;">
+                        <span>🎬 Watched: <strong>${watched}</strong></span>
+                        <span>📦 Remaining: <strong>${remaining}</strong></span>
+                        <span>📊 Limit: <strong>${limit}</strong></span>
+                    </div>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;">
+                        <button class="btn btn-sm btn-primary" onclick="prolongSub(${uid})"><i class="fas fa-plus"></i> ${(status.includes('EXPIR')||status.includes('END')||status.includes('INACTIVE')) ? 'Reactivate / Prolong' : 'Prolong'}</button>
+                        <button class="btn btn-sm btn-danger" onclick="endSub(${uid})"><i class="fas fa-times"></i> End Plan</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteSub(${uid})" title="Delete & reset"><i class="fas fa-trash"></i> Delete</button>
+                        <button class="btn btn-sm" onclick="replyToUser(${uid})"><i class="fas fa-reply"></i> Reply</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+        async function prolongSub(userId){
+            const res = await openAppModal('Prolong / Reactivate plan', [
+                {id:'days', label:'Days to add', type:'number', value:'7'},
+                {id:'extra', label:'Extra movie limit (0 = keep)', type:'number', value:'0'},
+            ]);
+            if(!res) return;
+            const days = res.days;
+            if(!days || isNaN(days)) return;
+            const extra = res.extra;
+            const body = {days: parseInt(days)};
+            if(extra && !isNaN(extra) && parseInt(extra) > 0) body.extra_movies = parseInt(extra);
+            try{
+                const r = await fetch(API_BASE+'/api/subscriptions/'+userId+'/prolong',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+                const d = await r.json();
+                showToast(d.success ? 'Reactivated / Prolonged! User notified.' : (d.error||'Failed'));
+                loadSubs();
+            }catch(e){showToast('Error','error');}
+        }
+        async function endSub(userId){
+            if(!confirm('End subscription for user '+userId+'?')) return;
+            try{
+                const r = await fetch(API_BASE+'/api/subscriptions/'+userId+'/end',{method:'POST',headers:{'Content-Type':'application/json'}});
+                const d = await r.json();
+                showToast(d.success ? 'Ended' : (d.error||'Failed'));
+                loadSubs();
+            }catch(e){showToast('Error','error');}
+        }
+        async function deleteSub(userId){
+            if(!confirm('DELETE subscription for user '+userId+'? Plan ends and record is removed.')) return;
+            try{
+                const r = await fetch(API_BASE+'/api/subscriptions/'+userId+'/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({hard:true})});
+                const d = await r.json();
+                showToast(d.success ? 'Deleted & reset' : (d.error||'Failed'));
+                loadSubs();
+            }catch(e){showToast('Error','error');}
+        }
+        
+        async function loadReengage(){
+            try{
+                const r = await fetch(API_BASE+'/api/settings/reengage');
+                const d = await r.json();
+                const en = document.getElementById('reengageEnabled');
+                if(en) en.checked = !!d.enabled;
+                const hrs = document.getElementById('reengageHours');
+                if(hrs){
+                    const h = String(d.hours || 48);
+                    if([...hrs.options].some(o=>o.value===h)) hrs.value = h;
+                    else { const opt=document.createElement('option'); opt.value=h; opt.textContent=h+' hours'; hrs.appendChild(opt); hrs.value=h; }
+                }
+                const tx = document.getElementById('reengageText');
+                if(tx) tx.value = d.text || '';
+            }catch(e){}
+        }
+        async function saveReengage(){
+            try{
+                const body = {
+                    enabled: !!(document.getElementById('reengageEnabled')||{}).checked,
+                    hours: parseFloat((document.getElementById('reengageHours')||{}).value || 48),
+                    text: (document.getElementById('reengageText')||{}).value || ''
+                };
+                const r = await fetch(API_BASE+'/api/settings/reengage',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+                const d = await r.json();
+                showToast(d.success ? 'Re-engage saved' : (d.error||'Failed'));
+            }catch(e){ showToast('Error','error'); }
+        }
+
+        async function loadMessages(){try{const r=await fetch(API_BASE+'/api/messages');allMessages=await r.json();renderMessages();}catch(e){}}
+        function renderMessages(){
+            let m = allMessages || [];
+            if(showOnlyPending) m = m.filter(x => !x.admin_replied);
+            const list = document.getElementById('messagesList');
+            if(!m.length){
+                list.innerHTML = '<div class="empty-state"><i class="fas fa-envelope"></i><p>No messages</p></div>';
+                return;
+            }
+            const groups = {};
+            m.forEach(x => {
+                const uid = String(x.user_id || 'unknown');
+                if(!groups[uid]) groups[uid] = [];
+                groups[uid].push(x);
+            });
+            const sorted = Object.entries(groups).sort((a,b) => {
+                const ta = a[1][0].created_at || a[1][0].last_activity || '';
+                const tb = b[1][0].created_at || b[1][0].last_activity || '';
+                return String(tb).localeCompare(String(ta));
+            });
+            list.innerHTML = sorted.map(([uid, msgs]) => {
+                const head = msgs[0] || {};
+                const uname = head.username ? '@'+escapeHtml(String(head.username)) : '';
+                const name = escapeHtml([head.first_name, head.last_name].filter(Boolean).join(' ') || head.name || '');
+                const last = head.last_activity || head.created_at || '';
+                const lastStr = last ? String(last).replace('T',' ').slice(0,16) : '';
+                const unread = msgs.filter(x => !x.admin_replied).length;
+                const badge = unread ? `<span class="badge" style="background:#ff3b30;color:#fff;margin-left:6px;">${unread} unread</span>` : '';
+                const meta = [uname || name || ('User '+uid), 'ID '+uid, lastStr ? ('Active: '+lastStr) : ''].filter(Boolean).join(' · ');
+                const body = msgs.slice(0, 50).map(x => {
+                    const ts = x.created_at ? String(x.created_at).replace('T',' ').slice(0,16) : '';
+                    const unreadDot = x.admin_replied ? '' : '• ';
+                    return `<div style="padding:8px 10px;border-bottom:1px solid var(--border,#333);font-size:13px;color:var(--text,#eee);"><span style="color:var(--text-muted);font-size:11px;">${unreadDot}${escapeHtml(ts)}</span><div style="color:var(--text,#eee);">${escapeHtml(x.text||'')}</div></div>`;
+                }).join('');
+                const gid = 'msgg_'+uid;
+                return `<div class="list-item" style="flex-direction:column;align-items:stretch;gap:8px;padding:12px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+                        <div><strong style="color:var(--text);">${meta}</strong>${badge}</div>
+                        <div style="display:flex;gap:6px;">
+                            <button class="btn btn-sm" onclick="toggleMsgGroup('${gid}', this)" title="Expand/collapse">▼</button>
+                            <button class="btn btn-sm" onclick="replyToUser(${uid})"><i class="fas fa-reply"></i> Reply</button>
+                        </div>
+                    </div>
+                    <div id="${gid}" style="display:none;max-height:260px;overflow:auto;background:var(--bg-secondary,rgba(127,127,127,0.12));border-radius:8px;border:1px solid var(--border,#333);">${body}</div>
+                </div>`;
+            }).join('');
+        }
+        function toggleMsgGroup(id, btn){
+            const el = document.getElementById(id);
+            if(!el) return;
+            const open = el.style.display==='none';
+            el.style.display = open ? 'block' : 'none';
+            if(btn) btn.textContent = open ? '▲' : '▼';
+        }
+
+        async function toggleShowLimit(){
+            const en = !!(document.getElementById('featShowLimit')||{}).checked;
+            try{
+                await fetch(API_BASE+'/api/settings/show-watched-remaining',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({enabled:en})});
+                showToast(en?'Users will see movie limit':'Movie limit hidden from users');
+            }catch(e){showToast('Failed','error');}
+        }
+        async function saveBanFee(){
+            const en = !!(document.getElementById('featBanFee')||{}).checked;
+            const amt = parseInt((document.getElementById('banFeeAmount')||{}).value||(document.getElementById('banFeeAmount2')||{}).value||300);
+            try{
+                await fetch(API_BASE+'/api/settings/ban-fee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({enabled:en, amount:amt})});
+                showToast('Ban unlock fee saved');
+            }catch(e){showToast('Failed','error');}
+        }
+        async function loadBanFee(){
+            try{
+                const r=await fetch(API_BASE+'/api/settings/ban-fee');
+                const d=await r.json();
+                const en=document.getElementById('featBanFee');
+                const am=document.getElementById('banFeeAmount');
+                const am2=document.getElementById('banFeeAmount2');
+                if(en) en.checked=!!d.enabled;
+                if(am) am.value=d.amount||300;
+                if(am2) am2.value=d.amount||300;
+            }catch(e){}
+        }
+
+        async function loadSettings(){
+            try{
+                try{
+                    const r = await fetch(API_BASE+'/api/settings/price');
+                    const d = await r.json();
+                    const el = document.getElementById('setDefaultPrice');
+                    if(el && d.default_price != null) el.value = d.default_price;
+                }catch(e){}
+                try{
+                    const r = await fetch(API_BASE+'/api/settings/subscription-prices');
+                    const d = await r.json();
+                    const map = {setWeeklyPrice:'weekly', set2WeekPrice:'2week', set3WeekPrice:'3week', setMonthlyPrice:'monthly'};
+                    for(const [id,key] of Object.entries(map)){
+                        const el = document.getElementById(id);
+                        if(el && d[key] != null) el.value = d[key];
+                    }
+                }catch(e){}
+                try{
+                    const r = await fetch(API_BASE+'/api/settings/subscription-limits');
+                    const d = await r.json();
+                    const map = {setWeeklyLimit:'weekly', set2WeekLimit:'2week', set3WeekLimit:'3week', setMonthlyLimit:'monthly'};
+                    for(const [id,key] of Object.entries(map)){
+                        const el = document.getElementById(id);
+                        if(el && d[key] != null) el.value = d[key];
+                    }
+                }catch(e){}
+                const feats = [
+                    ['featCart','/api/settings/cart-enabled','enabled'],
+                    ['featShowLimit','/api/settings/show-watched-remaining','enabled'],
+                    ['featCard','/api/settings/card-payment','enabled'],
+                    ['featSub','/api/settings/subscription-enabled','enabled'],
+                    ['featGetbot','/api/settings/getbot-enabled','enabled'],
+                    ['featPrem','/api/settings/premium-button-enabled','enabled'],
+                ];
+                for(const [id, path, key] of feats){
+                    try{
+                        const r = await fetch(API_BASE+path);
+                        const d = await r.json();
+                        const el = document.getElementById(id);
+                        if(el) el.checked = !!(d[key] ?? d.enabled ?? d.value);
+                    }catch(e){}
+                }
+                try{ await loadReengage(); }catch(e){}
+            await loadBanFee();
+            }catch(e){ console.error('loadSettings', e); }
+        }
+
+        async function savePrices(){
+            const def=parseInt(document.getElementById('setDefaultPrice').value);
+            const weekly=parseInt(document.getElementById('setWeeklyPrice').value);
+            const two=parseInt(document.getElementById('set2WeekPrice').value);
+            const three=parseInt(document.getElementById('set3WeekPrice').value);
+            const monthly=parseInt(document.getElementById('setMonthlyPrice').value);
+            const banFee=parseInt((document.getElementById('banFeeAmount')||{}).value||300);
+            await fetch(API_BASE+'/api/settings/price',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({price:def})});
+            const pr=await fetch(API_BASE+'/api/settings/subscription-prices',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({weekly,'2week':two,'3week':three,monthly})});
+            await fetch(API_BASE+'/api/settings/ban-fee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:banFee})});
+            const pd=await pr.json().catch(()=>({}));
+            showToast(pd.success!==false?'Prices saved — bot will use them now':'Save failed', pd.success===false?'error':undefined);
+            loadSettings();
+        }
+        async function saveLimits(){
+            const weekly=parseInt(document.getElementById('setWeeklyLimit').value)||60;
+            const two=parseInt(document.getElementById('set2WeekLimit').value)||100;
+            const three=parseInt(document.getElementById('set3WeekLimit').value)||140;
+            const monthly=parseInt(document.getElementById('setMonthlyLimit').value)||200;
+            await fetch(API_BASE+'/api/settings/subscription-limits',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({weekly,'2week':two,'3week':three,monthly})});
+            showToast('Limits saved!');
+        }
+        async function toggleFeature(name){const map={cart:'cart-enabled',card:'card-payment',sub:'subscription-enabled',getbot:'getbot-enabled',prem:'premium-button-enabled'};const enabled=document.getElementById('feat'+name.charAt(0).toUpperCase()+name.slice(1)).checked;try{await fetch(API_BASE+'/api/settings/'+map[name],{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({enabled})});showToast('Toggled!');}catch(e){}}
+        async function loadDbStatus(){try{const r=await fetch(API_BASE+'/api/admin/db-status');const d=await r.json();
+            const set=(id,v)=>{const el=document.getElementById(id); if(el) el.textContent=(v===undefined||v===null)?'-':v;};
+            if(d.connected&&d.collections){
+                set('dbMovies', d.collections.movies||0);
+                set('dbPayments', d.collections.payments||0);
+                set('dbUsers', d.collections.users||0);
+                set('dbBundles', d.collections.series_bundles||0);
+                set('dbSubs', d.collections.subscriptions||0);
+                set('dbMessages', d.collections.messages||0);
+            } else {
+                ['dbMovies','dbPayments','dbUsers','dbBundles','dbSubs','dbMessages'].forEach(id=>set(id,'—'));
+            }
+        }catch(e){console.error('db-status',e);}}
+        function clearAllMessages(){if(confirm('Clear all messages?'))fetch(API_BASE+'/api/admin/db-drop-collection',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({collection:'messages',confirm:true})}).then(()=>{showToast('Cleared!');loadMessages();});}
+        function clearAllData(){const confirmInput=prompt('Type RESET to confirm:');if(confirmInput!=='RESET')return;fetch(API_BASE+'/api/admin/db-clear',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({confirm:true})}).then(()=>{showToast('Reset!');location.reload();});}
+        function refreshAll(){loadStats();loadMovies();loadBundles();loadUsers();loadPayments();loadSubs();loadMessages();loadSettings();loadDbStatus();showToast('Refreshed!');}
+        
+        function setMovieGridCols(n) {
+            n = parseInt(n) || 3;
+            localStorage.setItem('movieGridCols', n);
+            const grid = document.getElementById('moviesGrid');
+            if (grid) {
+                grid.style.gridTemplateColumns = 'repeat(' + n + ', minmax(0, 1fr))';
+            }
+        }
+        function useSelectedPoster() {
+            if (selectedMovies.size !== 1) {
+                showToast('Select exactly ONE movie whose poster you want to reuse', 'error');
+                return;
+            }
+            const srcToken = Array.from(selectedMovies)[0];
+            const src = (allMovies || []).find(m => m.token === srcToken);
+            if (!src || !src.poster_url) {
+                showToast('Selected movie has no poster', 'error');
+                return;
+            }
+            window._reusePosterUrl = src.poster_url;
+            showToast('Poster locked. Now select other movies and Send — they will use this poster.');
+        }
+        (function(){
+            const saved = localStorage.getItem('movieGridCols');
+            if (saved) {
+                const sel = document.getElementById('movieGridCols');
+                if (sel) sel.value = saved;
+                setTimeout(() => setMovieGridCols(saved), 500);
+            }
+        })();
+
+        function openEditMovie(token) {
+            const m = (allMovies || []).find(x => x.token === token);
+            if (!m) { showToast('Movie not found', 'error'); return; }
+            document.getElementById('editMovieToken').value = token;
+            document.getElementById('editMovieTitle').value = m.title || '';
+            document.getElementById('editMoviePrice').value = m.price || 10;
+            document.getElementById('editMovieCategory').value = m.category || 'movie';
+            const poster = m.poster_url || '';
+            document.getElementById('editMoviePoster').value = poster;
+            const urlInput = document.getElementById('editMoviePosterUrl');
+            if (urlInput) urlInput.value = (poster && !String(poster).startsWith('data:')) ? poster : '';
+            const prev = document.getElementById('editPosterPreview');
+            if (prev) {
+                if (poster) { prev.src = poster; prev.style.display = 'inline-block'; }
+                else { prev.style.display = 'none'; prev.src = ''; }
+            }
+            document.getElementById('editMovieDesc').value = m.description || '';
+            const modal = document.getElementById('editMovieModal');
+            modal.style.display = 'flex';
+        }
+        function closeEditMovie() {
+            document.getElementById('editMovieModal').style.display = 'none';
+        }
+        async function saveEditMovie() {
+            const token = document.getElementById('editMovieToken').value;
+            let posterVal = (document.getElementById('editMoviePoster').value || '').trim();
+            if (!posterVal) {
+                const urlAlt = document.getElementById('editMoviePosterUrl');
+                if (urlAlt) posterVal = (urlAlt.value || '').trim();
+            }
+            const body = {
+                title: document.getElementById('editMovieTitle').value.trim(),
+                price: parseInt(document.getElementById('editMoviePrice').value) || 10,
+                category: document.getElementById('editMovieCategory').value,
+                poster_url: posterVal,
+                description: document.getElementById('editMovieDesc').value.trim()
+            };
+            if (!body.title) { showToast('Title required', 'error'); return; }
+            try {
+                const r = await fetch(API_BASE + '/api/movies/' + token, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(body)
+                });
+                const d = await r.json();
+                if (d.success) {
+                    showToast('Movie updated!');
+                    closeEditMovie();
+                    loadMovies();
+                } else {
+                    showToast(d.error || 'Update failed', 'error');
+                }
+            } catch (e) {
+                showToast('Network error', 'error');
+            }
+        }
+
+        // Add-movie tab switching
+        function switchAddTab(tab, btn){
+            ['single','bulk','simple','json'].forEach(t=>{
+                const el=document.getElementById('addTab-'+t);
+                if(el) el.style.display = (t===tab)?'block':'none';
+            });
+            ['tabSingleBtn','tabBulkBtn','tabSimpleBtn','tabJsonBtn'].forEach(id=>{
+                const b=document.getElementById(id);
+                if(b){ b.classList.remove('btn-primary'); b.classList.add('btn-secondary'); }
+            });
+            if(btn){ btn.classList.remove('btn-secondary'); btn.classList.add('btn-primary'); }
+        }
+
+        function initDashboard(){loadStats();loadMovies();loadBundles();loadUsers();loadPayments();loadSubs();loadMessages();loadSettings();loadDbStatus();setInterval(()=>{loadStats();loadPayments();loadDbStatus();},25000);}
+    </script>
+
+<!-- App install (APK-style progress) -->
+<div id="installPopup" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.85); align-items:center; justify-content:center;">
+  <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:18px; padding:22px 20px; max-width:340px; width:90%; text-align:center; box-shadow:0 16px 48px rgba(0,0,0,0.7);">
+    <img src="{{DASHBOARD_LOGO}}" style="width:56px;height:56px;border-radius:14px;margin-bottom:12px;object-fit:cover;" onerror="this.style.display='none'">
+    <div style="font-weight:800;font-size:16px;margin-bottom:4px;" id="apkTitle">Installing {{BOT_DISPLAY_NAME}}</div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;" id="apkSub">Preparing secure package…</div>
+    <div style="height:10px;border-radius:99px;background:rgba(255,255,255,0.08);overflow:hidden;margin-bottom:8px;">
+      <div id="apkFill" style="height:100%;width:0%;background:var(--accent);border-radius:99px;transition:width .15s linear;"></div>
+    </div>
+    <div id="apkPct" style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:12px;">0%</div>
+    <div style="display:flex;gap:8px;">
+      <button onclick="dismissInstall()" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg-hover);color:var(--text-secondary);font-weight:700;cursor:pointer;">Cancel</button>
+      <button id="installBtn" onclick="startApkInstall()" style="flex:1;padding:10px;border-radius:10px;border:none;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;">Install</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
+
+function dismissInstall(){
+  const p = document.getElementById('installPopup');
+  if(p) p.style.display = 'none';
+  sessionStorage.setItem('installDismissed','1');
+}
+
+async function startApkInstall(){
+  const fill = document.getElementById('apkFill');
+  const pctEl = document.getElementById('apkPct');
+  const sub = document.getElementById('apkSub');
+  const btn = document.getElementById('installBtn');
+  if(btn) btn.disabled = true;
+  const steps = [
+    [8, 'Downloading package…'],
+    [22, 'Verifying signature…'],
+    [40, 'Unpacking resources…'],
+    [58, 'Installing components…'],
+    [75, 'Optimizing…'],
+    [90, 'Finalizing…'],
+    [100, 'Installed successfully']
+  ];
+  for(const [p, label] of steps){
+    if(sub) sub.textContent = label;
+    if(fill) fill.style.width = p + '%';
+    if(pctEl) pctEl.textContent = p + '%';
+    await new Promise(r => setTimeout(r, 280 + Math.random()*220));
+  }
+  if(deferredPrompt){
+    try { deferredPrompt.prompt(); await deferredPrompt.userChoice; } catch(e){}
+    deferredPrompt = null;
+  }
+  setTimeout(() => {
+    dismissInstall();
+    if(typeof showToast === 'function') showToast('App ready');
+  }, 500);
+}
+
+async function triggerGetApp(){
+  if(typeof closeSidebar === 'function') closeSidebar();
+  const popup = document.getElementById('installPopup');
+  if(popup){
+    popup.style.display = 'flex';
+    const fill = document.getElementById('apkFill');
+    const pctEl = document.getElementById('apkPct');
+    const sub = document.getElementById('apkSub');
+    if(fill) fill.style.width = '0%';
+    if(pctEl) pctEl.textContent = '0%';
+    if(sub) sub.textContent = 'Preparing secure package…';
+    const btn = document.getElementById('installBtn');
+    if(btn) btn.disabled = false;
+  }
+}
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+</script>
+
+<!-- Edit Movie Modal -->
+<div id="editMovieModal" style="display:none; position:fixed; inset:0; z-index:99990; background:rgba(0,0,0,0.7); align-items:center; justify-content:center; padding:1rem;">
+  <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:1.25rem; max-width:420px; width:100%; max-height:90vh; overflow-y:auto;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+      <h3 style="font-weight:800; font-size:16px;">✏️ Edit Movie</h3>
+      <button onclick="closeEditMovie()" style="background:none; border:none; color:var(--text-muted); font-size:18px; cursor:pointer;">✕</button>
+    </div>
+    <input type="hidden" id="editMovieToken">
+    <div style="margin-bottom:10px;">
+      <label style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:4px;">Title</label>
+      <input id="editMovieTitle" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13px;">
+    </div>
+    <div style="margin-bottom:10px;">
+      <label style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:4px;">Price (KES)</label>
+      <input id="editMoviePrice" type="number" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13px;">
+    </div>
+    <div style="margin-bottom:10px;">
+      <label style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:4px;">Category</label>
+      <select id="editMovieCategory" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13px;">
+        <option value="movie">movie</option>
+        <option value="series">series</option>
+        <option value="anime">anime</option>
+        <option value="documentary">documentary</option>
+      </select>
+    </div>
+    <div style="margin-bottom:10px;">
+      <label style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:4px;">Poster (drag & drop or choose file)</label>
+      <div id="editPosterDrop" onclick="document.getElementById('editPosterFile').click()"
+           style="border:2px dashed var(--border); border-radius:12px; padding:16px; text-align:center; cursor:pointer; background:var(--bg); transition:border-color .2s;">
+        <i class="fas fa-cloud-upload-alt" style="font-size:22px; color:var(--accent); margin-bottom:6px;"></i>
+        <div style="font-size:12px; color:var(--text-secondary);">Drop image here or tap to browse</div>
+        <img id="editPosterPreview" style="display:none; max-height:120px; margin-top:10px; border-radius:8px;">
+      </div>
+      <input type="file" id="editPosterFile" accept="image/*" style="display:none;" onchange="handleEditPosterFile(this)">
+      <input type="hidden" id="editMoviePoster">
+      <div style="margin-top:6px;">
+        <label style="font-size:10px; color:var(--text-muted);">Or paste URL:</label>
+        <input id="editMoviePosterUrl" placeholder="https://..." style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:12px; margin-top:2px;" oninput="document.getElementById('editMoviePoster').value=this.value">
+      </div>
+    </div>
+    <div style="margin-bottom:14px;">
+      <label style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:4px;">Description</label>
+      <textarea id="editMovieDesc" rows="3" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13px; resize:vertical;"></textarea>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <button onclick="closeEditMovie()" class="btn btn-secondary" style="flex:1;">Cancel</button>
+      <button onclick="saveEditMovie()" class="btn btn-primary" style="flex:1;"><i class="fas fa-save"></i> Save</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  const drop = document.getElementById('editPosterDrop');
+  if(!drop) return;
+  ['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.style.borderColor='var(--accent)'; }));
+  ['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.style.borderColor='var(--border)'; }));
+  drop.addEventListener('drop', e => {
+    const f = e.dataTransfer.files && e.dataTransfer.files[0];
+    if(f) processEditPosterFile(f);
+  });
+})();
+function handleEditPosterFile(input){
+  if(input.files && input.files[0]) processEditPosterFile(input.files[0]);
+}
+function processEditPosterFile(file){
+  if(!file.type.startsWith('image/')){ showToast('Please choose an image','error'); return; }
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const dataUrl = e.target.result;
+    document.getElementById('editMoviePoster').value = dataUrl;
+    const prev = document.getElementById('editPosterPreview');
+    prev.src = dataUrl;
+    prev.style.display = 'inline-block';
+    document.getElementById('editMoviePosterUrl').value = '';
+  };
+  reader.readAsDataURL(file);
+}
+</script>
+
+<div id="appModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:var(--card-bg,#1a1a1a);color:var(--text,#fff);border-radius:14px;max-width:420px;width:100%;padding:18px;box-shadow:0 12px 40px rgba(0,0,0,0.4);border:1px solid var(--border,#333);">
+    <div id="appModalTitle" style="font-weight:700;font-size:16px;margin-bottom:10px;">Message</div>
+    <div id="appModalBody"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;">
+      <button class="btn btn-secondary" type="button" onclick="closeAppModal()">Cancel</button>
+      <button class="btn btn-primary" type="button" id="appModalOk">Send</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
