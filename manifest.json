@@ -1,5 +1,5 @@
 {
-  "name": "Kento Dashboard",
+  "name": "Signor Dashboard",
   "short_name": "SignorEnt",
   "description": "Signor Movie Bot Admin Dashboard",
   "start_url": "/",
@@ -9,13 +9,13 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "https://files.catbox.moe/nonrca.jpg",
+      "src": "https://files.catbox.moe/f5t5tn.jpg",
       "sizes": "192x192",
       "type": "image/jpeg",
       "purpose": "any maskable"
     },
     {
-      "src": "https://files.catbox.moe/nonrca.jpg",
+      "src": "https://files.catbox.moe/f5t5tn.jpg",
       "sizes": "512x512",
       "type": "image/jpeg",
       "purpose": "any maskable"
